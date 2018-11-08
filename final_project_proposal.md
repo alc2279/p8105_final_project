@@ -6,6 +6,7 @@ The group members (names and UNIs)
 ----------------------------------
 
 -   Aakriti Gupta: ag3786
+-   Alex Goldstein: ajg2231
 -   Annie Clark: alc2279
 -   Jiyue Qin: jq2293
 -   Margaret Gacheru: mg3861
