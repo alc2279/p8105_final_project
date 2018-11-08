@@ -37,10 +37,9 @@ cardiovascular risk factors.
 
   - Visualizations/statistical models showing associations between
     cardiovascular mortality and risk factors, including location
-    specific (at the county level) visualizations.
-  - Interactive Shiny tool that will allow patients to input their data,
-    for example, age, sex and smoking history, and then visualize the
-    changes in their risks.
+    specific (at the county level) visualizations
+  - Interactive Shiny tool that will allow patients to input their data
+    (observe changes in risk based on behavior/health changes)
 
 ## The anticipated data sources
 

@@ -21,13 +21,10 @@ Heart disease is currently the leading cause of death in the US in both men and 
 A member of the team, Aakriti, is involved in a startup called [Heartbeat](https://heartbeathealth.com/), which is clinic aimed at providing cardiovascular screening and heart disease prevention education, specifically in individuals who have the opportunity to change their lifestyles in their 30s and 40s. Our goal is to provide data-driven insights that can be used by the Heartbeat team and patients about the risk factors of heart disease and their geo-spatial distribution. Additionally, we aim to create an interactive visualization tool that will enable people to understand the impact of cardiovascular risk factors.  
 
 ## The intended final products
-<<<<<<< HEAD
-* Visualizations/statistical models showing associations between cardiovascular mortality and risk factors, including location specific (at the county level) visualizations.
-* Interactive Shiny tool that will allow patients to input their data, for example, age, sex and smoking history, and then visualize the changes in their risks.
-=======
+
 * Visualizations/statistical models showing associations between cardiovascular mortality and risk factors, including location specific (at the county level) visualizations
-* Interactive Shiny tool that will allow patients to input their data (observe change in risk based on behavior/health changes)
->>>>>>> 0409cdfeace5d855d174af3d786c173d67796456
+* Interactive Shiny tool that will allow patients to input their data (observe changes in risk based on behavior/health changes)
+
 
 ## The anticipated data sources
 * [Risk Factors by County (2013 to 2015)](http://www.countyhealthrankings.org/explore-health-rankings/rankings-data-documentation?fbclid=IwAR1YHiMm53wKQCr3nE_AhvKumi_jpJvR_HUMkQVy8ZxZKnzT2AHPhE_IwYU)
