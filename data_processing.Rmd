@@ -1,0 +1,16 @@
+---
+title: "tudy"
+author: "JiyueQin"
+date: "November 19, 2018"
+output: github_document
+---
+
+```{r setup}
+library(tidyverse)
+
+```
+
+## load the data 
+```{r cache = TRUE}
+data = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
+```
