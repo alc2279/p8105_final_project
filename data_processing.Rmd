@@ -97,7 +97,7 @@ geo_nyc_cvrisk = cvrisk %>%
 
 
 ```{r, eval = FALSE}
-## Annie eda - this is all exploratory, for final clean dataset, look at next data chunk
+## Annie eda - this is all exploratory, for final clean dataset code, look at next data chunk
 nyc_cvrisk = 
   cvrisk %>% 
   filter(state_desc == "New York", city_name == "New York")
@@ -175,6 +175,9 @@ nyc_cvrisk %>%
   group_by(year, n) %>% 
   count()
 
+
+
+
 ## all 2015 data has 20 measures; 2014 data has 8 or less measures
 
 ## let's get a breakdown of measures by year
@@ -182,8 +185,6 @@ nyc_cvrisk %>%
 nyc_cvrisk %>% 
   filter(year == 2015) %>% 
   count(measure_id)
-
-
 
 nyc_cvrisk %>% 
   filter(year == 2014) %>% 
@@ -207,8 +208,6 @@ nyc_cvrisk_2015 %>%
 
 ## all geo_locations have 20 measures
 
-## I think I am feeling relatively comfortable with what's in the data; can start visualizing it
-
 ## split up lat/long
 
 nyc_cvrisk_2015 = 
@@ -227,21 +226,43 @@ nyc_cvrisk_2015 =
   
 
 
+## checking rules for larger dataset
+
+## lets look at by year
+cvrisk %>% 
+  group_by(year, geo_location) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  select(year, n) %>% 
+  group_by(year, n) %>% 
+  count()
+
+cvrisk %>% 
+  filter(year == 2015) %>% 
+  count(measure_id)
+
+cvrisk %>% 
+  filter(year == 2014) %>% 
+  count(measure_id)
+
+## same trends for the entire dataset
+
 ```
 
 
 ```{r}
-## Annie EDA - cleaner version of data
+## Annie EDA - final set of tidying data
 
 ## create lookup table for measures and their meaning
 
 cvrisk_measure_lookup = 
   cvrisk %>% 
-  group_by(measure, measure_id, short_question_text) %>% 
-  count()
+  group_by(measure, measure_id, short_question_text, year) %>% 
+  count() %>% 
+  arrange(year, measure_id)
 
 
-## clean up some data
+## clean up nyc datset (only include 2015 data, and remove missing values)
 
 nyc_cvrisk_2015 = 
   cvrisk %>% 
@@ -255,8 +276,9 @@ nyc_cvrisk_2015 =
   separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
   mutate(latitude = str_replace(latitude, "\\(", ""),
          longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(latitude, longitude, population_count, measure_id, data_value)
-
+  select(unique_id, latitude, longitude, population_count, measure_id, data_value) %>% 
+  spread(key = measure_id, value = data_value) %>% 
+  janitor::clean_names()
 
 
 nyc_cvrisk_2015 %>%
@@ -265,7 +287,7 @@ nyc_cvrisk_2015 %>%
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
-## use same tidiyng for full dataset (need to that same rules apply!)
+## clean up full datset (only include 2015 data, and remove missing values)
 cvrisk_2015 = 
   cvrisk %>% 
   filter(geographic_level == "Census Tract",
@@ -277,14 +299,143 @@ cvrisk_2015 =
   separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
   mutate(latitude = str_replace(latitude, "\\(", ""),
          longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(latitude, longitude, population_count, measure_id, data_value)
+  select(unique_id, latitude, longitude, population_count, measure_id, data_value) %>% 
+  spread(key = measure_id, value = data_value) %>% 
+  janitor::clean_names()
+
 
 
 cvrisk_2015 %>%
   ggplot(aes(x = measure_id, y = data_value)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
 
+
+Exploratory -- plotting each outcome by each risk factor
+```{r}
+
+## nyc plots, each risk factor x chd
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = access2, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = binge, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = bphigh, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = bpmed, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = checkup, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = cholscreen, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = csmoking, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = diabetes, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = highchol, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = kidney, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = lpa, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = mhlth, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = obesity, y = chd)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = phlth, y = chd)) + 
+  geom_point()
+
+
+
+## nyc plots, each risk factor x stroke
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = access2, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = binge, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = bphigh, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = bpmed, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = checkup, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = cholscreen, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = csmoking, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = diabetes, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = highchol, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = kidney, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = lpa, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = mhlth, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = obesity, y = stroke)) + 
+  geom_point()
+
+nyc_cvrisk_2015 %>% 
+  ggplot(aes(x = phlth, y = stroke)) + 
+  geom_point()
+
+
+```
+
+
+```{r}
 
 ```
 
