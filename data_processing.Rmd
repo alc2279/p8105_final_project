@@ -6,7 +6,7 @@ output: github_document
 ---
 
 
-Risk factors:: (15 total)
+Risk factors that we're interested in:: (15 total)
 
 * ACCESS2: Current lack of health insurance among adults aged 18<89><db><d2>64 Years
 * BINGE: Binge drinking among adults aged >=18 Year
@@ -25,7 +25,7 @@ Risk factors:: (15 total)
 * SLEEP: Sleeping less than 7 hours among adults aged >=18 Years
 
 
-Outcomes:: (2 total)
+Outcomes that we're interested in:: (2 total)
 
 * CHD: Coronary heart disease among adults aged >=18 Years
 * STROKE: Stroke among adults aged >=18 Years
@@ -276,7 +276,11 @@ nyc_cvrisk_2015 =
   separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
   mutate(latitude = str_replace(latitude, "\\(", ""),
          longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value) %>% 
+  select(unique_id, latitude, longitude, population_count, measure_id, data_value)
+
+
+nyc_cvrisk_2015_wide = 
+  nyc_cvrisk_2015 %>% 
   spread(key = measure_id, value = data_value) %>% 
   janitor::clean_names()
 
@@ -299,7 +303,11 @@ cvrisk_2015 =
   separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
   mutate(latitude = str_replace(latitude, "\\(", ""),
          longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value) %>% 
+  select(unique_id, latitude, longitude, population_count, measure_id, data_value)
+
+## spread measure_ids
+cvrisk_2015_wide = 
+  cvrisk_2015 %>% 
   spread(key = measure_id, value = data_value) %>% 
   janitor::clean_names()
 
@@ -316,126 +324,140 @@ Exploratory -- plotting each outcome by each risk factor
 ```{r}
 
 ## nyc plots, each risk factor x chd
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = access2, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = binge, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = bphigh, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = bpmed, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = checkup, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = cholscreen, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = csmoking, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = diabetes, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = highchol, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = kidney, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = lpa, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = mhlth, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = obesity, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = phlth, y = chd)) + 
   geom_point()
 
 
 
 ## nyc plots, each risk factor x stroke
-nyc_cvrisk_2015 %>% 
+
+
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = access2, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = binge, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = bphigh, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = bpmed, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = checkup, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = cholscreen, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = csmoking, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = diabetes, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = highchol, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = kidney, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = lpa, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = mhlth, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = obesity, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015 %>% 
+nyc_cvrisk_2015_wide %>% 
   ggplot(aes(x = phlth, y = stroke)) + 
   geom_point()
 
 
 ```
 
-
+Correlation between risk factors/outcomes
 ```{r}
+nyc_cvrisk_2015_wide %>% 
+  select(access2:stroke) %>% 
+  cor() %>% 
+  View()
+
+## install.packages("corrplot")
+library(corrplot)
+
+nyc_cvrisk_2015_wide %>% 
+  select(access2:stroke) %>% 
+  cor()%>%
+  corrplot(., method="circle")
 
 ```
 
