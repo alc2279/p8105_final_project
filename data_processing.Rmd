@@ -96,8 +96,8 @@ geo_nyc_cvrisk = cvrisk %>%
 ```
 
 
-```{r}
-## Annie eda
+```{r, eval = FALSE}
+## Annie eda - this is all exploratory, for final clean dataset, look at next data chunk
 nyc_cvrisk = 
   cvrisk %>% 
   filter(state_desc == "New York", city_name == "New York")
@@ -129,10 +129,6 @@ cvrisk_measure_lookup =
   cvrisk %>% 
   group_by(measure, measure_id, short_question_text) %>% 
   count()
-
-nyc_cvrisk = 
-  nyc_cvrisk %>% 
-  select (-data_source, -geographic_level, -measure, -short_question_text)
 
 # look at missing values
 
@@ -230,11 +226,43 @@ nyc_cvrisk_2015 =
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE"))
   
 
+
+```
+
+
+```{r}
+## Annie EDA - cleaner version of data
+
+## create lookup table for measures and their meaning
+
+cvrisk_measure_lookup = 
+  cvrisk %>% 
+  group_by(measure, measure_id, short_question_text) %>% 
+  count()
+
+
+## clean up some data
+
+nyc_cvrisk_2015 = 
+  cvrisk %>% 
+  filter(state_desc == "New York", city_name == "New York",
+         geographic_level == "Census Tract",
+         !is.na(data_value),
+         year == 2015,
+         measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
+                         "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
+                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
+  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
+  mutate(latitude = str_replace(latitude, "\\(", ""),
+         longitude = str_replace(longitude, "\\)", "")) %>% 
+  select(latitude, longitude, population_count, measure_id, data_value)
+
+
+
 nyc_cvrisk_2015 %>%
   ggplot(aes(x = measure_id, y = data_value)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
 
 
 ```
