@@ -265,5 +265,26 @@ nyc_cvrisk_2015 %>%
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
+## use same tidiyng for full dataset (need to that same rules apply!)
+cvrisk_2015 = 
+  cvrisk %>% 
+  filter(geographic_level == "Census Tract",
+         !is.na(data_value),
+         year == 2015,
+         measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
+                         "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
+                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
+  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
+  mutate(latitude = str_replace(latitude, "\\(", ""),
+         longitude = str_replace(longitude, "\\)", "")) %>% 
+  select(latitude, longitude, population_count, measure_id, data_value)
+
+
+cvrisk_2015 %>%
+  ggplot(aes(x = measure_id, y = data_value)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
 ```
 
