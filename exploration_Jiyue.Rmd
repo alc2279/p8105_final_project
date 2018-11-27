@@ -1,0 +1,105 @@
+---
+title: "Explore_Jiyue"
+author: "JiyueQin"
+date: "November 25, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+theme_set(theme_bw())
+```
+
+# import and tidy the data
+```{r cache = TRUE}
+data = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
+  janitor::clean_names()
+
+```
+
+# looking at different cities in NY state
+
+```{r}
+data_city = data %>% 
+  filter(geographic_level == "City", state_abbr == "NY") %>% 
+  select(-starts_with("state"), -contains("footnote"), - data_source, -tract_fips, -geographic_level, -data_value_unit) %>% 
+  rename(city = city_name)
+
+## in 2014 and 2015, NY state has 9 cities in each year.
+data_city %>% 
+  group_by(year, city) %>% 
+  summarize(n())
+## 2014: 8 measures; in 2015: 20 measures =>can not see the trend as measures are diff
+data_city %>% 
+  group_by(year, measure) %>% 
+  summarize(n()) %>% 
+  View()
+data_city %>% 
+  filter(year == 2015) %>% 
+  group_by(city, measure) %>% 
+  summarize()
+data_city %>%
+  group_by(category, short_question_text) %>% 
+  summarize() %>% 
+  View()
+
+measures = c("Coronary Heart Disease", "Current Smoking", "Diabetes", "Obesity", "Binge Drinking", "High Blood Pressure", "Health Insurance", "High Cholesterol", "Current Asthma")
+
+data_city %>% 
+  filter(short_question_text %in% measures & data_value_type_id == "AgeAdjPrv") %>% 
+  ggplot(aes(x = city, y = data_value, color = city)) +
+  geom_point() +
+  labs(x = "") +
+  facet_wrap(~short_question_text) +
+  theme_bw(base_size = 8) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.6, vjust = 0.4)) 
+
+
+plot_prevalence = function(x){
+  data_city %>% 
+  filter(category == x & data_value_type_id == "AgeAdjPrv") %>% 
+  ggplot(aes(x = city, y = data_value, color = city)) +
+  geom_point() +
+  labs(x = "") +
+  facet_wrap(~short_question_text) +
+  theme_bw(base_size = 8) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.6, vjust = 0.4)) 
+}
+plot_prevalence("Health Outcomes")
+plot_prevalence("Unhealthy Behaviors")
+plot_prevalence("Prevention")
+
+
+## check the population
+data_city %>% 
+  group_by(city, population_count) %>% 
+  summarize %>% 
+  arrange(population_count)
+
+```
+
+New Rochelle is healthier in many aspects....although they drink a lot.
+
+# looking at different census tracts in NY city
+```{r}
+data_NYC = data %>% 
+  filter(geographic_level == "Census Tract", city_name == "New York") %>% 
+  select(-starts_with("state"), -contains("footnote"), - data_source, -tract_fips, -geographic_level, -data_value_unit) %>% 
+  rename(city = city_name)
+
+data_NYC %>% 
+  filter(short_question_text %in% measures) %>% 
+  ggplot(aes(x = data_value, fill = short_question_text)) +
+  geom_density(alpha = .5, color = NA) +
+  viridis::scale_fill_viridis(discrete = TRUE, option = "plasma")
+
+data_NYC %>% 
+  filter(short_question_text %in% measures, ! is.na(data_value)) %>%
+  mutate(short_question_text = fct_reorder(short_question_text, data_value)) %>% 
+  ggplot(aes(x = short_question_text,  y = data_value, fill = short_question_text)) +
+  geom_violin()
+
+## has missing values
+skimr::skim(data_NYC)
+````
+
