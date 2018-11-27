@@ -90,7 +90,7 @@ shinyApp(options = list(height = 800),
              df = subset(df, Data_Value > input$slider[1] & Data_Value < input$slider[2])
              
              #Define color pallete
-             Colors = brewer.pal(11,"RdBu")
+             Colors = brewer.pal(8,"Set2")
              
              #Apply pallete to values from data set
              binpal = colorBin(Colors, df$Data_Value, 6, pretty = FALSE)
@@ -123,10 +123,10 @@ shinyApp(options = list(height = 800),
                                 , data = df
                                 , label = paste(df$CityName, df$StateAbbr)
                                 , color = ~binpal(Data_Value)
-                                , radius = 10
+                                , radius = 5
                                 , fillColor = ~binpal(Data_Value)
                                 , fill = TRUE
-                                , opacity = 1
+                                , opacity = 0.8
                                 
                ) %>%
                addLegend(position = 'bottomleft', pal = binpal, values = df$Data_Value
