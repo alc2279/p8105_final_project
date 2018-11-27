@@ -1,0 +1,136 @@
+---
+title: "500_cities_database"
+author: "Aakriti Gupta"
+date: "November 17, 2018"
+output: github_document
+always_allow_html: yes
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+library(tidyverse)
+
+theme_set(theme_bw() + theme(legend.position = "bottom"))
+```
+
+
+```{r, include=FALSE}
+library(stringr)
+library(purrr)
+library(viridis)
+library(ggrepel)
+library(data.table)
+library(ggmap)
+library(lubridate)
+library(plotly)
+library(leaflet)
+library(RColorBrewer)
+library(maptools)
+
+```
+
+
+## Reading in the 500 cities database
+
+```{r, warning=FALSE, message=FALSE, cache=TRUE}
+cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
+  janitor::clean_names()
+```
+
+## Limiting database to New York city
+
+```{r, warning=FALSE, message=FALSE}
+nyc_cvrisk = cvrisk %>% 
+  filter(state_desc == "New York", city_name == "New York")
+```
+
+## Making some exploratory plots
+
+### Plot between high blood pressure and coronary artery disease
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+nyc_cvrisk %>%
+  filter(measure %in% c("High blood pressure among adults aged >=18 Years", "Coronary heart disease among adults aged >=18 Years"), geographic_level == "Census Tract", year == 2015) %>% 
+  select(unique_id, measure, data_value, population_count, geo_location) %>% 
+  spread(key = measure, value = data_value) %>% 
+  janitor::clean_names() %>% 
+  ggplot(aes(x = high_blood_pressure_among_adults_aged_18_years, y = coronary_heart_disease_among_adults_aged_18_years)) + geom_point()
+```
+
+### Cleaning database for geocoding
+
+```{r}
+geo_nyc_cvrisk = nyc_cvrisk %>%
+  filter(measure %in% c("High blood pressure among adults aged >=18 Years", "Coronary heart disease among adults aged >=18 Years"), geographic_level == "Census Tract", year == 2015) %>% 
+  select(unique_id, measure, data_value, population_count, geo_location) %>% 
+  spread(key = measure, value = data_value) %>% 
+  janitor::clean_names() %>%
+  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
+  mutate(latitude = str_replace(latitude, "\\(", ""),
+         longitude = str_replace(longitude, "\\)", "")) %>% 
+  mutate(latitude = as.numeric(latitude), longitude = as.numeric(longitude)
+  )
+```
+
+
+### Map showing distribution of coronary artery disease in New York City
+```{r}
+
+ Colors = brewer.pal(12,"Set3")
+             
+             #Apply pallete to values from data set
+             binpal = colorBin(Colors, geo_nyc_cvrisk$coronary_heart_disease_among_adults_aged_18_years, 12, pretty = FALSE)
+             
+ leaflet() %>%
+               addTiles() %>%
+               
+               #Add the markers for each location
+               addCircleMarkers(lat = geo_nyc_cvrisk$latitude
+                                , lng = geo_nyc_cvrisk$longitude
+                                , data = geo_nyc_cvrisk
+                          
+                                , color = ~binpal(geo_nyc_cvrisk$coronary_heart_disease_among_adults_aged_18_years)
+                                , radius = 5
+                                , fillColor = ~binpal(geo_nyc_cvrisk$coronary_heart_disease_among_adults_aged_18_years)
+                                , fill = TRUE
+                                , opacity = 1
+                                
+               ) %>%
+               addLegend(position = 'bottomleft', pal = binpal, values = geo_nyc_cvrisk$coronary_heart_disease_among_adults_aged_18_years
+               )
+```             
+    
+
+### Map showing distribution of high blood pressure in New York City
+```{r}
+  Colors = brewer.pal(12,"Paired")
+             
+             #Apply pallete to values from data set
+             binpal1 = colorBin(Colors, geo_nyc_cvrisk$high_blood_pressure_among_adults_aged_18_years, 12, pretty = FALSE)
+             
+ leaflet() %>%
+               addTiles() %>%
+               
+               #Add the markers for each location
+               addCircleMarkers(lat = geo_nyc_cvrisk$latitude
+                                , lng = geo_nyc_cvrisk$longitude
+                                , data = geo_nyc_cvrisk
+                          
+                                , color = ~binpal1(geo_nyc_cvrisk$high_blood_pressure_among_adults_aged_18_years)
+                                , radius = 5
+                                , fillColor = ~binpal1(geo_nyc_cvrisk$high_blood_pressure_among_adults_aged_18_years)
+                                , fill = TRUE
+                                , opacity = 1
+                                
+               ) %>%
+               addLegend(position = 'bottomleft', pal = binpal, values = geo_nyc_cvrisk$high_blood_pressure_among_adults_aged_18_years
+               )       
+           
+```
+
+
