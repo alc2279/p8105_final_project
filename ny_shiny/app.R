@@ -25,7 +25,7 @@ Data = Data %>%
 
 
 #Specify shinyApp(ui, server)
-shinyApp(options = list(height = 800), 
+shinyApp(options = list(height = 1000), 
          
          #Define the user interface element
          ui = fluidPage(
@@ -44,7 +44,7 @@ shinyApp(options = list(height = 800),
              )
            ),
            
-           fluidRow(column(12, leafletOutput('mymap'))
+           fluidRow(column(12, leafletOutput('mymap', height = 550))
            )
          )
          
