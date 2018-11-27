@@ -20,6 +20,8 @@ library(highcharter)
 
 #Read in dataset
 Data = fread('https://chronicdata.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD')
+Data = Data %>%
+  filter(StateDesc == "New York", CityName == "New York", GeographicLevel == "Census Tract")
 
 
 #Specify shinyApp(ui, server)
@@ -28,21 +30,21 @@ shinyApp(options = list(height = 800),
          #Define the user interface element
          ui = fluidPage(
            fluidRow(
-             column(5
+             column(8
                     
                     #Create element to allow user input. 
-                    , selectInput('categoryId', 'Select Category'
-                                  , choices = unique(Data$CategoryID)
+                    , selectInput('category', 'Select Category'
+                                  , choices = unique(Data$Category)
                     )
                     #render ui elements within the server function. 
                     , uiOutput('measures'))
              
-             , column(3, uiOutput('slider')
-                      , selectInput('age', 'Type', choices = unique(Data$DataValueTypeID))
+             , column(4, uiOutput('slider')
+                      
              )
-           )
-           ,fluidRow(column(8, leafletOutput('mymap'))
-                     , column(4, dataTableOutput('table'))
+           ),
+           
+           fluidRow(column(12, leafletOutput('mymap'))
            )
          )
          
@@ -54,13 +56,13 @@ shinyApp(options = list(height = 800),
            df1 = reactive ({
              df = Data
              df = subset(df, select = c('CityName','StateAbbr', 'GeoLocation', 'Year'
-                                         , 'Measure', 'Data_Value', 'PopulationCount', 'GeographicLevel'
-                                         , 'Short_Question_Text', 'CategoryID', 'DataValueTypeID'))
+                                        , 'Measure', 'Data_Value', 'PopulationCount', 'GeographicLevel'
+                                        , 'Short_Question_Text', 'Category', 'DataValueTypeID'))
              
              #Removes NA values
              df = df[!is.na(df$Data_Value),]
-             df = subset(df, DataValueTypeID == input$age)
-             df = subset(df, CategoryID == input$categoryId)
+             
+             df = subset(df, Category == input$category)
              #df = subset(df, GeographicLevel == as.character(input$geoLevel))
            })
            
@@ -90,10 +92,10 @@ shinyApp(options = list(height = 800),
              df = subset(df, Data_Value > input$slider[1] & Data_Value < input$slider[2])
              
              #Define color pallete
-             Colors = brewer.pal(12,"Set3")
+             Colors = brewer.pal(8,"Set2")
              
              #Apply pallete to values from data set
-             binpal = colorBin(Colors, df$Data_Value, 12, pretty = FALSE)
+             binpal = colorBin(Colors, df$Data_Value, 6, pretty = FALSE)
              
              #Separate GeoLocation column into latitude and longitude columns. 
              lat = vector()
@@ -134,14 +136,7 @@ shinyApp(options = list(height = 800),
              
            })
            
-           #Create data table to show values in tabular format
-           output$table = renderDataTable ({
-             df = subset(df2(), select = c(CityName, StateAbbr, Data_Value))
-             df = df[order(df$Data_Value, decreasing = TRUE),]
-             df = setNames(df, c('City', 'State', 'Value'))
-             datatable(df, options = list(pageLength = 10))
-             
-           })
+           
            
          }
 )
