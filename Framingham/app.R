@@ -16,7 +16,7 @@ ui <- fluidPage(
    titlePanel("Framingham Risk Score"),
    
    h4('Please enter the following information:'),
-   br(),
+
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
@@ -29,28 +29,36 @@ ui <- fluidPage(
                      min = 20, max = 80,
                      value = 50),
          radioButtons('SmokingButton', 'Smoking status:',
-                      choices = list('Smoker', 'Non-smoker'), selected = 'Non-smoker', T),
+                      choices = list('Smoker', 'Non-smoker'), selected = 'Non-smoker'),
          strong('Systolic blood pressure:'),
          radioButtons('SBPButton', 'Treated:',
-                      choices = list('Yes', 'No'), selected = 'Yes', T),
+                      choices = list('Yes', 'No'), selected = 'Yes'),
          sliderInput("SBPSlider", "Value, mm Hg:",
-                     min = 120, max = 160,
+                     min = 115, max = 160,
                      value = 140),
          sliderInput("ChoSlider", "Total cholesterol, mg/dL:",
-                     min = 160, max = 280,
+                     min = 155, max = 280,
                      value = 220),
          sliderInput("HDLSlider", "HDL cholesterol, mg/dL",
-                     min = 40, max = 60,
+                     min = 35, max = 60,
                      value = 50)
         
       ),
       
       # Show a plot of the generated distribution
       mainPanel(
-         h4('Risk points:'),
+        tabsetPanel(
+          tabPanel("Introduction",
+                  br(),
+                  verbatimTextOutput("Intro")
+          ),
+          tabPanel("Relevant links", 
+                   br(), uiOutput("tab"))
+        ), 
+         h3('Risk points:'),
          textOutput('PointsOutput'),
          br(),
-         h4('10-year risk in %:'),
+         h3('10-year risk:'),
          textOutput('RiskOutput')
       )
    )
@@ -247,7 +255,7 @@ cal_risk <- function(points, gender){
 
  if(gender == "Male") 
  {
-  if(points == 0) risk = '< 1%'
+  if(points <= 0) risk = '< 1%'
   else if(points >= 1 & points <= 4) risk = '1%'
   else if(points >= 5 & points <= 6) risk = '2%'
   else if(points == 7) risk = '3%'
@@ -263,7 +271,7 @@ cal_risk <- function(points, gender){
   else if(points >= 17) risk = 'Over 30%'
  }else if (gender == "Female")
  {
-     if(points < 10) risk = '< 1%'
+     if(points < 10) risk = 'Less than 1%'
      else if(points < 13) risk = '1%'
     
      else if(points < 15) risk = '2%'
@@ -277,10 +285,19 @@ cal_risk <- function(points, gender){
      else if(points == 22) risk = '17%'
      else if(points == 23) risk = '22%'
      else if(points == 24) risk = '27%'
-     else if(points >24) risk = 'Over 30%'
+     else if(points > 24) risk = 'Over 30%'
      
  }
-  return(risk)
+  print(risk, quote = F)
+  if (risk == 'Less than 1%') print("low risk", quote = F)
+  else if (risk == 'Over 30%') print("high risk", quote = F)
+  else {
+    value = as.numeric(sub("%","",risk))
+    if(value < 10) print("low risk", quote = F)
+    else if(value < 20) print("intermediate risk", quote = F)
+    else print("high risk", quote = F)
+  }
+  
 }
 
 server <- function(input, output) {
@@ -292,6 +309,9 @@ server <- function(input, output) {
    SBP <- reactive({as.numeric(input$SBPSlider)})
    HDLChol <- reactive({as.numeric(input$HDLSlider)})
    sex <- reactive({as.character(input$SexButton)})
+   
+   output$Intro <- renderText({"The Framingham Risk Score is a gender-specific algorithm used to estimate the 10-year cardiovascular risk of an individual.
+It is one of a number of scoring systems used to determine an individual's chances of developing cardiovascular disease."})
    
    output$PointsOutput <- renderPrint({
     
@@ -310,13 +330,19 @@ server <- function(input, output) {
      if(sex() == 'Male')
      {
        points = men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
-       print(cal_risk(points, "Male"), quote = F)
+       cal_risk(points, "Male")
      }
      else if(sex() == 'Female')
      {
        points = women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
-       print(cal_risk(points, "Female"), quote = F)
+       cal_risk(points, "Female")
      }
+   })
+   
+   url <- a("Framingham Risk Score", href="https://en.wikipedia.org/wiki/Framingham_Risk_Score")
+   url2 <- a("what is cardiovascular disease", href="http://www.heart.org/en/health-topics/consumer-healthcare/what-is-cardiovascular-disease")
+   output$tab <- renderUI({
+     tagList(url, br(), url2)
    })
 }
 
