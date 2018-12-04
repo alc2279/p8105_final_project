@@ -334,14 +334,12 @@ phlth_plot = nyc_cvrisk_wide %>%
   (binge_plot + access2_plot)
 
 
-
-
 ```
 
 
 
 ```{r}
-## gganimate example::::
+## gganimate packages and day tidying::::
 
 
 ## this is the old package - can use gganimate with this package
@@ -365,7 +363,7 @@ library(gganimate)
 install.packages("installr")
 install.ImageMagick()
 
-
+## create table for animation
 chd_by_id = nyc_cvrisk %>% 
   group_by(unique_id) %>% 
   summarise(chd_value = max(data_value)) 
@@ -373,66 +371,65 @@ chd_by_id = nyc_cvrisk %>%
 nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
 
 
-theme_set(theme_bw())  # pre-set the bw theme.
 
-  geom_point() +
-  ##geom_smooth(aes(group = year), method = "lm", show.legend = FALSE) +
-  ##facet_wrap(~continent, scales = "free") +
-  scale_x_log10()  # convert to log scale
-
-gganimate::gg_animate(g)
-
-anim_save("./raw_data/animation.gif")
-
-
-?gganimate
-
-
-g <- ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, frame = year)) +
-  geom_point() +
-  geom_smooth(aes(group = year), 
-              method = "lm", 
-              show.legend = FALSE) +
-  facet_wrap(~continent, scales = "free") +
-  scale_x_log10()  # convert to log scale
-
-gganimate(g, interval=0.2)
-
-
-ggplot(nyc_cvrisk_joined, aes(data_value, chd_value,)) +
-  geom_point(alpha = 0.7, show.legend = FALSE) +
-  ##scale_colour_manual(values = country_colors) +
-  ##scale_size(range = c(2, 12)) +
-  scale_x_log10() +
-  facet_wrap(~continent) +
-  # Here comes the gganimate specific bits
-  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
-  transition_time(measure_id) +
-  ease_aes('linear')
 ```
 
 
 ```{r}
+## gganimate attempts
+
+
+theme_set(theme_bw())  # pre-set the bw theme.
+
+
+## using transition_length and state_length
 p <- 
   ggplot() +
-  geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value)) + 
+  geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, 
+                                           size = population_count, colour = measure_id),
+             alpha = 0.5) + 
+  
+  
+  labs(
+       x = 'Coronary Heart Prevalence', 
+       y = 'Risk Factor Prevalence') +
   
   # gganimate parts
-  transition_states(measure_id, transition_length = 10, state_length = 20)
-
-# Styling
-
+  transition_states(measure_id, transition_length = 1, state_length = 5000, wrap = TRUE) +
+  enter_fade() +
+  exit_fade()
 
 animate(p)
 
 
- coord_equal(xlim = c(-75000, 825000), ylim = c(0, 1200000)) +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.text = element_blank(),
-        axis.title = element_blank(),
-        axis.ticks = element_blank(),
-        panel.background = element_rect(fill = "grey99", colour = "grey80"),
-        plot.title = element_text(hjust = 0, size = 16, vjust=0))
+## title = 'Risk Factor: {measure_id}', 
+
+## add title
+## facet by stroke (remove stroke and chd)
+## add title
+## slow down
+## make points more transparent
+## change order
+
+
+## trying frame per second
+p <- 
+  ggplot() +
+  geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, 
+                                           size = population_count, colour = measure_id),
+             alpha = 0.5) + 
+  
+  
+  labs(
+       x = 'Coronary Heart Prevalence', 
+       y = 'Risk Factor Prevalence') +
+  
+  # gganimate parts
+  transition_states(measure_id, fps = 0.5) +
+  enter_fade() +
+  exit_fade()
+
+animate(p)
+
 ```
 
