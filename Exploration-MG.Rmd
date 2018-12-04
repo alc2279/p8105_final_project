@@ -1,0 +1,200 @@
+---
+title: "Exploration - MG"
+author: "Margaret Gacheru"
+date: "November 22, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(leaps)
+library(lattice)
+```
+
+
+Load the data 
+```{r cache = TRUE}
+cv_data = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
+```
+
+
+Limiting database to New York 
+
+```{r, warning=FALSE, message=FALSE}
+nyc_cvrisk = cv_data %>% 
+  janitor::clean_names()%>%
+  filter(state_desc != "United States", geographic_level != "City")%>%
+  select(unique_id, state_desc, city_name, population_count, geo_location, short_question_text, data_value)%>%
+  spread(key = short_question_text, value = data_value)%>%
+  separate(geo_location, into = c("latitude", "longitude"), sep = ",")%>%
+  mutate(latitude = str_replace(latitude, "\\(", ""),
+         latitude = str_replace(latitude, " ", ""),
+         latitude = as.numeric(latitude),
+         longitude = str_replace(longitude, "\\)", ""),
+         longitude = str_replace(longitude, " ", ""),
+         longitude = as.numeric(longitude))%>%
+  janitor::clean_names()
+  
+```
+
+We do not have enough points to properly map out NYC
+
+```{r}
+
+nyc_cvrisk%>%
+  filter(city_name == "New York")%>%
+  ggplot(aes(y = latitude, x = longitude, color = coronary_heart_disease))+
+  geom_point()+
+  viridis::scale_color_viridis(discrete = FALSE)
+
+```
+
+
+Avoidable behaviours (physical inactivity, current smoking) in New York
+
+```{r}
+
+nyc_cvrisk%>%
+  filter(city_name == "New York")%>%
+  ggplot(aes(x = physical_inactivity, y = current_smoking, color=coronary_heart_disease)) + 
+  geom_point(aes(size = coronary_heart_disease), alpha = .4) +
+  labs(
+    y = "Physical Activity",
+    x = "Current Smoking"
+  )+
+  viridis::scale_color_viridis(discrete = FALSE)
+
+```
+
+
+Top 10 cities with coronary heart disease (external factors)
+
+```{r}
+
+top = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Checkup = median(annual_checkup),
+            Cholesterol_Screen = median(cholesterol_screening),
+            Smoking = median(current_smoking),
+            Insurance = median(health_insurance),
+            Inactivity = median(physical_inactivity),
+            Binge_Drinking = median(binge_drinking),
+            ProperSleep = median(sleep_7_hours))%>%
+  arrange(desc(Outcome))%>%
+  head(10)
+
+row.names(top) = top$city_name
+
+top_matrix = top%>%select(-city_name)%>%data.matrix(top) 
+
+levelplot(top_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Top 10 Cities with Coronary Heart Disease (External Factors)")
+```
+
+
+Bottom 10 cities with coronary heart disease (external factors)
+
+```{r}
+
+bottom = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Checkup = median(annual_checkup),
+            Cholesterol_Screen = median(cholesterol_screening),
+            Smoking = median(current_smoking),
+            Insurance = median(health_insurance),
+            Inactivity = median(physical_inactivity),
+            Binge_Drinking = median(binge_drinking),
+            Sleep_7hrs = median(sleep_7_hours))%>%
+  filter(Outcome != "NA")%>%
+  arrange(Outcome)%>%
+  head(10)
+
+row.names(bottom) = bottom$city_name
+
+bottom_matrix = bottom%>%select(-city_name)%>%data.matrix(bottom) 
+
+library(lattice)
+levelplot(bottom_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Bottom 10 Cities with Coronary Heart Disease (External Factors)")
+
+```
+
+
+Top 10 cities with coronary heart disease (internal factors)
+
+```{r}
+
+top = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Arthritis = median(arthritis),
+            Kidney_Disease = median(chronic_kidney_disease),
+            COPD = median(copd),
+            Diabetes = median(diabetes),
+            High_Blood_Pressure = median(high_blood_pressure),
+            High_Cholesterol = median(high_cholesterol),
+            Stroke = median(stroke))%>%
+  arrange(desc(Outcome))%>%
+  head(10)
+
+row.names(top) = top$city_name
+
+top_matrix = top%>%select(-city_name)%>%data.matrix(top) 
+
+levelplot(top_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Top 10 Cities with Coronary Heart Disease (Internal Factors)")
+```
+
+
+Bottom 10 cities with coronary heart disease (internal factors)
+
+```{r}
+
+bottom = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Arthritis = median(arthritis),
+            Kidney_Disease = median(chronic_kidney_disease),
+            COPD = median(copd),
+            Diabetes = median(diabetes),
+            High_Blood_Pressure = median(high_blood_pressure),
+            High_Cholesterol = median(high_cholesterol),
+            Stroke = median(stroke))%>%
+  filter(Outcome != "NA")%>%
+  arrange(Outcome)%>%
+  head(10)
+
+row.names(bottom) = bottom$city_name
+
+bottom_matrix = bottom%>%select(-city_name)%>%data.matrix(bottom) 
+
+library(lattice)
+levelplot(bottom_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Bottom 10 Cities with Coronary Heart Disease (Internal Factors)")
+
+```
+
+It is difficult to visually see the relationships between the variables (even when there is a high correlation) because the range in each variable is fairly small
+
+
+Correlation matrix (for covariates and outcome)
+
+```{r}
+
+library(corrplot)
+res = nyc_cvrisk%>%
+  select(-c("unique_id", "state_desc","city_name", "population_count", "latitude", "longitude"))%>%
+  drop_na()%>%
+  cor()
+
+corrplot(res, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 90)
+
+ggplot(nyc_cvrisk, aes(x = health_insurance, y = coronary_heart_disease))+
+  geom_point()
+```
+
