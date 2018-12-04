@@ -1,0 +1,17 @@
+base
+methods
+datasets
+utils
+grDevices
+graphics
+stats
+stringr
+purrr
+viridisLite
+viridis
+ggplot2
+ggrepel
+data.table
+ggmap
+lubridate
+plotly

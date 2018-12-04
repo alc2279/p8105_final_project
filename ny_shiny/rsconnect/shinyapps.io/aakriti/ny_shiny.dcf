@@ -1,0 +1,10 @@
+name: ny_shiny
+title:
+username:
+account: aakriti
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 603101
+bundleId: 1739530
+url: https://aakriti.shinyapps.io/ny_shiny/
+when: 1543935898.41067
