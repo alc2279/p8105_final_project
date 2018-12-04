@@ -1,10 +1,4 @@
 base
-methods
-datasets
-utils
-grDevices
-graphics
-stats
 stringr
 purrr
 viridisLite
@@ -15,3 +9,9 @@ data.table
 ggmap
 lubridate
 plotly
+tidyverse
+tibble
+tidyr
+readr
+dplyr
+forcats

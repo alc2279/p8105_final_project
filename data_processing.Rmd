@@ -42,6 +42,7 @@ library(data.table)
 library(ggmap)
 library(lubridate)
 library(plotly)
+library(tidyverse)
 ```
 
 ## load the data 
