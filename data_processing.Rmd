@@ -250,10 +250,22 @@ cvrisk %>%
 ```
 
 
+```{r cache = TRUE}
+cvrisk_url = "https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD"
+
+## Read in data from github
+cvrisk = 
+  read.csv(url(cvrisk_url)) %>% 
+  janitor::clean_names() %>% 
+  as_tibble()
+```
+
 ```{r}
 ## Annie EDA - final set of tidying data
 
 ## create lookup table for measures and their meaning
+
+
 
 cvrisk_measure_lookup = 
   cvrisk %>% 
@@ -269,7 +281,7 @@ nyc_cvrisk_2015 =
   filter(state_desc == "New York", city_name == "New York",
          geographic_level == "Census Tract",
          !is.na(data_value),
-         year == 2015,
+         year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
@@ -278,6 +290,8 @@ nyc_cvrisk_2015 =
          longitude = str_replace(longitude, "\\)", "")) %>% 
   select(unique_id, latitude, longitude, population_count, measure_id, data_value)
 
+cvrisk %>% 
+  count(measure_id, year) %>% View()
 
 nyc_cvrisk_2015_wide = 
   nyc_cvrisk_2015 %>% 
@@ -296,7 +310,7 @@ cvrisk_2015 =
   cvrisk %>% 
   filter(geographic_level == "Census Tract",
          !is.na(data_value),
-         year == 2015,
+         year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
@@ -460,4 +474,90 @@ nyc_cvrisk_2015_wide %>%
   corrplot(., method="circle")
 
 ```
+
+```{r}
+library(patchwork)
+library(tidyverse)
+
+cvrisk %>% count(measure_id, year) %>% View()
+
+access2_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = access2, y = chd)) + 
+  geom_point()
+
+binge_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = binge, y = chd)) + 
+  geom_point()
+
+bphigh_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = bphigh, y = chd)) + 
+  geom_point()
+
+bpmed_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = bpmed, y = chd)) + 
+  geom_point()
+
+checkup_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = checkup, y = chd)) + 
+  geom_point()
+
+cholscreen_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = cholscreen, y = chd)) + 
+  geom_point()
+
+csmoking_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = csmoking, y = chd)) + 
+  geom_point()
+
+diabetes_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = diabetes, y = chd)) + 
+  geom_point()
+
+highchol_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = highchol, y = chd)) + 
+  geom_point()
+
+kidney_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = kidney, y = chd)) + 
+  geom_point()
+
+lpa_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = lpa, y = chd)) + 
+  geom_point()
+
+mhlth_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = mhlth, y = chd)) + 
+  geom_point()
+
+obesity_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = obesity, y = chd)) + 
+  geom_point()
+
+phlth_plot = nyc_cvrisk_2015_wide %>% 
+  ggplot(aes(x = phlth, y = chd)) + 
+  geom_point()
+
+
+##internal
+(phlth_plot + obesity_plot + mhlth_plot + kidney_plot) / 
+  (highchol_plot + diabetes_plot+ bphigh_plot)
+
+##external
+(lpa_plot + csmoking_plot + cholscreen_plot + checkup_plot) / 
+  (bpmed_plot + binge_plot + access2_plot)
+
+##total
+(phlth_plot + obesity_plot + mhlth_plot + lpa_plot) / 
+  (kidney_plot + highchol_plot + diabetes_plot  + csmoking_plot) / 
+  (cholscreen_plot + checkup_plot + bpmed_plot + bphigh_plot) / 
+  (binge_plot + access2_plot)
+
+
+cvrisk = read_csv(file = "./raw_data/500_Cities__Local_Data_for_Better_Health__2018_release.csv") %>% 
+    janitor::clean_names()
+
+
+
+```
+
 
