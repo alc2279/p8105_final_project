@@ -258,7 +258,7 @@ nyc_cvrisk_2015 =
   select(unique_id, latitude, longitude, population_count, measure_id, data_value)
 
 cvrisk %>% 
-  count(measure_id, year) %>% View()
+  count(measure_id, year) 
 
 nyc_cvrisk_2015_wide = 
   nyc_cvrisk_2015 %>% 
