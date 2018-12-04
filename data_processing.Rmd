@@ -371,11 +371,10 @@ chd_by_id = nyc_cvrisk %>%
   summarise(chd_value = max(data_value)) 
 
 nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
-  
+
 
 theme_set(theme_bw())  # pre-set the bw theme.
 
-g <- ggplot(nyc_cvrisk_2015_joined, aes(data_value, chd_value, frame = measure_id)) +
   geom_point() +
   ##geom_smooth(aes(group = year), method = "lm", show.legend = FALSE) +
   ##facet_wrap(~continent, scales = "free") +
@@ -412,4 +411,28 @@ ggplot(nyc_cvrisk_joined, aes(data_value, chd_value,)) +
   ease_aes('linear')
 ```
 
+
+```{r}
+p <- 
+  ggplot() +
+  geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value)) + 
+  
+  # gganimate parts
+  transition_states(measure_id, transition_length = 10, state_length = 20)
+
+# Styling
+
+
+animate(p)
+
+
+ coord_equal(xlim = c(-75000, 825000), ylim = c(0, 1200000)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_rect(fill = "grey99", colour = "grey80"),
+        plot.title = element_text(hjust = 0, size = 16, vjust=0))
+```
 
