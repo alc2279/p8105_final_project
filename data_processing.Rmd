@@ -97,7 +97,7 @@ nyc_cvrisk =
   separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
   mutate(latitude = str_replace(latitude, "\\(", ""),
          longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value)
+  select(unique_id, latitude, longitude, population_count, measure_id, data_value, short_question_text)
 
 
 nyc_cvrisk_wide = 
@@ -386,7 +386,7 @@ theme_set(theme_bw())  # pre-set the bw theme.
 p <- 
   ggplot() +
   geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, 
-                                           size = population_count, colour = measure_id),
+                                           size = population_count, colour = short_question_text),
              alpha = 0.5) + 
   
   
@@ -395,11 +395,11 @@ p <-
        y = 'Risk Factor Prevalence') +
   
   # gganimate parts
-  transition_states(measure_id, transition_length = 1, state_length = 5000, wrap = TRUE) +
+  transition_states(short_question_text, transition_length = 1, state_length = 50000, wrap = TRUE) +
   enter_fade() +
   exit_fade()
 
-animate(p)
+animate(p, fps = 1)
 
 
 ## title = 'Risk Factor: {measure_id}', 
@@ -416,7 +416,7 @@ animate(p)
 p <- 
   ggplot() +
   geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, 
-                                           size = population_count, colour = measure_id),
+                                           size = population_count, colour = short_question_text),
              alpha = 0.5) + 
   
   
@@ -425,7 +425,7 @@ p <-
        y = 'Risk Factor Prevalence') +
   
   # gganimate parts
-  transition_states(measure_id, fps = 0.5) +
+  transition_states(short_question_text, fps = 0.5) +
   enter_fade() +
   exit_fade()
 
