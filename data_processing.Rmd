@@ -412,24 +412,5 @@ animate(p, fps = 1)
 ## change order
 
 
-## trying frame per second
-p <- 
-  ggplot() +
-  geom_point(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, 
-                                           size = population_count, colour = short_question_text),
-             alpha = 0.5) + 
-  
-  
-  labs(
-       x = 'Coronary Heart Prevalence', 
-       y = 'Risk Factor Prevalence') +
-  
-  # gganimate parts
-  transition_states(short_question_text, fps = 0.5) +
-  enter_fade() +
-  exit_fade()
 
-animate(p)
-
-```
 
