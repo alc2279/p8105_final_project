@@ -132,7 +132,7 @@ shinyApp(options = list(height = 1000),
                                 , opacity = 0.8
                                 
                ) %>%
-               addLegend(position = 'bottomleft', pal = binpal, values = df$Data_Value, title = "Prevalence at the Census Level in Percentage"
+               addLegend(position = 'bottomleft', pal = binpal, values = df$Data_Value
                )
              
            })
