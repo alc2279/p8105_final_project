@@ -1,0 +1,17 @@
+base
+stringr
+purrr
+viridisLite
+viridis
+ggplot2
+ggrepel
+data.table
+ggmap
+lubridate
+plotly
+tidyverse
+tibble
+tidyr
+readr
+dplyr
+forcats

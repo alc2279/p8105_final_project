@@ -1,8 +1,12 @@
 ---
-title: "Final Report"
-author: "Margaret Gacheru"
-date: "December 1, 2018"
-output: html_document
+title: "The Heart Project"
+author: "Annie, Margaret, Jiyhue & Aakriti"
+date: "December 4, 2018"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -12,6 +16,32 @@ library(tidyverse)
 
 #Motivation
 
+###Some facts about heart disease
+
+* Approximately 1.5 million heart attacks and strokes occur every year in the United States.
+* More than 800,000 people in the United States die from cardiovascular disease each year—that's 1 in every 3 deaths, and about 160,000 of them occur in people under age 65.
+* Heart disease kills roughly the same number people in the United States each year as cancer, pneumonia, and accidents combined.
+* Heart disease and stroke cost the nation an estimated $555 billion in health care costs and lost productivity in 2015.
+
+####*Here is more:*
+
+Majority of Americans are already suffering from heart disease:
+![Prevalence of heart disease](pictures/facts.png)
+
+And…
+
+*About 90% of the risk for the first heart attack is because of conditions or lifestyle factors that are preventable*
+
+![Lifestyle risk factors](pictures/lifestyle.png)
+
+There is plenty of room for improvement when it comes to raising awareness for cardiovascular risk, based on a [recent study] (https://www.ahajournals.org/doi/pdf/10.1161/JAHA.117.005491) that found one in five adults at risk for heart disease don’t recognize a need to improve their health. We believe that a better understanding of risk factors underlying health perceptions and behaviors is needed to capitalize on cardiovascular preventive efforts.
+
+###Goals of our project
+
+* Understanding risk factors for heart disease and stroke
+* Visualizing correlations of these risk factors with heart disease and stroke
+* Visualizing the distribution of risk factors and cardiovascular outcomes in New York City
+* Predicting risk of heart disease in an individual patient based on presence of risk factors
 
 
 #Related Work
