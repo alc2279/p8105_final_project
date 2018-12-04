@@ -63,38 +63,6 @@ cvrisk =
 
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
-## Aakriti code from google doc
-cvrisk %>% 
-  filter(state_desc == "New York", city_name == "New York") %>% 
-  filter(measure %in% c("High blood pressure among adults aged >=18 Years", 
-                        "Coronary heart disease among adults aged >=18 Years"), 
-         geographic_level == "Census Tract", year == 2015) %>% 
-  select(unique_id, measure, data_value, population_count, geo_location) %>% 
-  spread(key = measure, value = data_value) %>% 
-  janitor::clean_names() %>% 
-  ggplot(aes(x = high_blood_pressure_among_adults_aged_18_years, 
-             y = coronary_heart_disease_among_adults_aged_18_years)) + 
-  geom_point()
-```
-
-
-
-```{r}
-## Aakriti code from google doc
-geo_nyc_cvrisk = cvrisk %>% 
-  filter(state_desc == "New York", city_name == "New York") %>% 
-  filter(measure %in% c("High blood pressure among adults aged >=18 Years", 
-                        "Coronary heart disease among adults aged >=18 Years"), 
-         geographic_level == "Census Tract", year == 2015) %>% 
-  select(unique_id, measure, data_value, population_count, geo_location) %>% 
-  spread(key = measure, value = data_value) %>% 
-  janitor::clean_names() %>%
-  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
-  mutate(latitude = str_replace(latitude, "\\(", ""),
-         longitude = str_replace(longitude, "\\)", ""))
-
-```
 
 
 ```{r, eval = FALSE}
