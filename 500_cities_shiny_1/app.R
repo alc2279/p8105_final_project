@@ -27,6 +27,7 @@ shinyApp(options = list(height = 800),
          
          #Define the user interface element
          ui = fluidPage(
+           titlePanel("Health Indicators in the US "),
            fluidRow(
              column(5
                     
@@ -77,7 +78,7 @@ shinyApp(options = list(height = 800),
            
            #Create a slider to filter the map markers. 
            output$slider = renderUI ({
-             sliderInput('slider', 'Filter Map', min = min(df2()$Data_Value) 
+             sliderInput('slider', 'Filter Based on Percentage', min = min(df2()$Data_Value) 
                          , max = max(df2()$Data_Value)
                          , value = c(min(df2()$Data_Value), max(df2()$Data_Value)))
            })
@@ -121,7 +122,7 @@ shinyApp(options = list(height = 800),
                addCircleMarkers(lat = df$lat
                                 , lng = df$lng
                                 , data = df
-                                , label = paste(df$CityName, df$StateAbbr)
+                                , label = paste(df$Data_Value)
                                 , color = ~binpal(Data_Value)
                                 , radius = 5
                                 , fillColor = ~binpal(Data_Value)
@@ -129,7 +130,7 @@ shinyApp(options = list(height = 800),
                                 , opacity = 0.8
                                 
                ) %>%
-               addLegend(position = 'bottomleft', pal = binpal, values = df$Data_Value
+               addLegend(position = 'bottomleft', pal = binpal, values = df$Data_Value, title = "Prevalence in percentage"
                )
              
            })
