@@ -47,7 +47,13 @@ Outcomes that we're interested in:: (2 total)
 
 ## load the data, not evaluating this
 ```{r cache = TRUE, eval = FALSE}
-##data = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
+cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
+    janitor::clean_names() 
+
+
+## data used for shiny
+##cvrisk = read_csv("https://chronicdata.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
+
 ```
 
 ## load data 
@@ -59,6 +65,7 @@ cvrisk =
   read.csv(url(cvrisk_url)) %>% 
   janitor::clean_names() %>% 
   as_tibble()
+
 ```
 
 
