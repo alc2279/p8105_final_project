@@ -34,15 +34,13 @@ Outcomes that we're interested in:: (2 total)
 
 
 ```{r, include=FALSE}
+library(tidyverse)
 library(stringr)
 library(purrr)
 library(viridis)
 library(ggrepel)
-library(data.table)
 library(ggmap)
-library(lubridate)
 library(plotly)
-library(tidyverse)
 ```
 
 ## load the data 
