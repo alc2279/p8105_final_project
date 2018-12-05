@@ -193,6 +193,16 @@ Cleaner correlation matrix (CHD)
 ```{r}
 cv_data = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
 
+#Determining what measures are in 2015
+cv_data%>%
+  janitor::clean_names()%>%
+  filter(year == 2015)%>%
+  group_by(measure_id)%>%
+  summarise(count = n())
+
+
+#Determining what measures are in 2016
+
 
 ## clean up nyc datset (only include 2016 data, and remove missing values)
 
