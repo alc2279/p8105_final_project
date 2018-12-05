@@ -363,16 +363,133 @@ install.packages("installr")
 install.ImageMagick()
 
 ## create table for animation
-chd_by_id = nyc_cvrisk %>% 
-  group_by(unique_id) %>% 
-  summarise(chd_value = max(data_value)) 
+nyc_cvrisk_limited = nyc_cvrisk %>% 
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication"))
 
+<<<<<<< HEAD
 nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id") %>% 
   rename("Population" = population_count, "Risk Factor" = short_question_text)
+=======
+nyc_cad = nyc_cvrisk %>% 
+  filter(short_question_text == "Coronary Heart Disease")
+>>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
+
+nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
+
+```
+
+Heat maps of the outcome (CHD) and covariates
+
+<<<<<<< HEAD
+Top 10 cities with coronary heart disease (external factors)
+
+```{r}
+
+top = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Checkup = median(annual_checkup),
+            Cholesterol_Screen = median(cholesterol_screening),
+            Smoking = median(current_smoking),
+            Insurance = median(health_insurance),
+            Inactivity = median(physical_inactivity),
+            Binge_Drinking = median(binge_drinking))%>%
+  arrange(desc(Outcome))%>%
+  head(10)
+
+row.names(top) = top$city_name
+
+top_matrix = top%>%select(-city_name)%>%data.matrix(top) 
+
+levelplot(top_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Top 10 Cities with Coronary Heart Disease (External Factors)")
+```
+
+
+Bottom 10 cities with coronary heart disease (external factors)
+
+```{r}
+
+bottom = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Checkup = median(annual_checkup),
+            Cholesterol_Screen = median(cholesterol_screening),
+            Smoking = median(current_smoking),
+            Insurance = median(health_insurance),
+            Inactivity = median(physical_inactivity),
+            Binge_Drinking = median(binge_drinking))%>%
+  filter(Outcome != "NA")%>%
+  arrange(Outcome)%>%
+  head(10)
+
+row.names(bottom) = bottom$city_name
+
+bottom_matrix = bottom%>%select(-city_name)%>%data.matrix(bottom) 
+
+library(lattice)
+levelplot(bottom_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Bottom 10 Cities with Coronary Heart Disease (External Factors)")
 
 ```
 
 
+Top 10 cities with coronary heart disease (internal factors)
+
+```{r}
+
+top = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Arthritis = median(arthritis),
+            Kidney_Disease = median(chronic_kidney_disease),
+            COPD = median(copd),
+            Diabetes = median(diabetes),
+            High_Blood_Pressure = median(high_blood_pressure),
+            High_Cholesterol = median(high_cholesterol),
+            Stroke = median(stroke))%>%
+  arrange(desc(Outcome))%>%
+  head(10)
+
+row.names(top) = top$city_name
+
+top_matrix = top%>%select(-city_name)%>%data.matrix(top) 
+
+levelplot(top_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Top 10 Cities with Coronary Heart Disease (Internal Factors)")
+```
+
+
+Bottom 10 cities with coronary heart disease (internal factors)
+
+```{r}
+
+bottom = nyc_cvrisk%>%
+  group_by( city_name)%>%
+  summarize(Outcome = median(coronary_heart_disease),
+            Arthritis = median(arthritis),
+            Kidney_Disease = median(chronic_kidney_disease),
+            COPD = median(copd),
+            Diabetes = median(diabetes),
+            High_Blood_Pressure = median(high_blood_pressure),
+            High_Cholesterol = median(high_cholesterol),
+            Stroke = median(stroke))%>%
+  filter(Outcome != "NA")%>%
+  arrange(Outcome)%>%
+  head(10)
+
+row.names(bottom) = bottom$city_name
+
+bottom_matrix = bottom%>%select(-city_name)%>%data.matrix(bottom) 
+
+library(lattice)
+levelplot(bottom_matrix, col.regions=heat.colors, colorkey=list(space="right"),
+          xlab = "", ylab = "", main = "Bottom 10 Cities with Coronary Heart Disease (Internal Factors)")
+
+```
+
+It is difficult to visually see the relationships between the variables (even when there is a high correlation) because the range in each variable is fairly small
+=======
 ```{r}
 ## gganimate attempts
 
@@ -383,17 +500,24 @@ theme_set(theme_bw())  # pre-set the bw theme.
 ## using transition_length and state_length
 
 p <- 
+<<<<<<< HEAD
   ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = "Risk Factor", label = "Risk Factor")) +
   geom_point(data = nyc_cvrisk_joined, aes( 
                                            size = "Population", colour = "Risk Factor" ),
+=======
+  ggplot(data = nyc_cvrisk_joined, aes(x = data_value.y, y = data_value.x, frame = short_question_text.x)) +
+  geom_point(data = nyc_cvrisk_joined, aes( 
+                                           size = population_count.x, colour = short_question_text.x ),
+>>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
              alpha = 0.5) + 
+  xlim(0, 10) +
   
   labs(title = "{closest_state}",
        x = 'Coronary Heart Disease Prevalence', 
        y = 'Risk Factor Prevalence') +
   
   # gganimate parts
-  transition_states(short_question_text, transition_length = 1, state_length = 50000, wrap = TRUE) +
+  transition_states(short_question_text.x, transition_length = 1, state_length = 50000, wrap = TRUE) +
   enter_fade() +
   exit_fade()
 
@@ -404,3 +528,4 @@ animate(p, fps = 1)
 
 
 
+>>>>>>> 6038bdc53d5b718bdd4e1b9248d92a6d17aa9ff2

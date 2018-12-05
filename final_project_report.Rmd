@@ -1,6 +1,6 @@
 ---
 title: "The Heart Project"
-author: "Annie, Margaret, Jiyhue & Aakriti"
+author: "Annie, Margaret, Jiyue & Aakriti"
 date: "December 4, 2018"
 output: 
   html_document:
@@ -12,6 +12,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(corrplot)
+
 ```
 
 #Motivation
@@ -113,7 +115,7 @@ nyc_cvrisk =
   filter(state_desc == "New York", city_name == "New York",
          geographic_level == "Census Tract",
          !is.na(data_value),
-         ##year == 2016,
+         #year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
@@ -127,11 +129,13 @@ nyc_cvrisk =
 We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset.
 
 ```{r}
-chd_by_id = nyc_cvrisk %>% 
-  group_by(unique_id) %>% 
-  summarise(chd_value = max(data_value)) 
+nyc_cvrisk_limited = nyc_cvrisk %>% 
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication"))
 
-nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
+nyc_cad = nyc_cvrisk %>% 
+  filter(short_question_text == "Coronary Heart Disease")
+
+nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
 ```
 
 We then installed the package required for animation
@@ -140,7 +144,7 @@ devtools::install_github("dgrtwo/gganimate")
 ```
 
 We then created an animated scatterplot with Coronary Heart DIsease prevalence on the X-axis and different risk factors on the Y-axis
-```{r, eval=FALSE}
+```{r}
 theme_set(theme_bw())  # pre-set the bw theme.
 
 
@@ -148,40 +152,81 @@ theme_set(theme_bw())  # pre-set the bw theme.
 library(ggplot2)
 library(gganimate)
 p <- 
-  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = short_question_text, label = short_question_text)) +
+  ggplot(data = nyc_cvrisk_joined, aes(x = data_value.y, y = data_value.x, frame = short_question_text.x)) +
   geom_point(data = nyc_cvrisk_joined, aes( 
-                                           size = population_count, colour = short_question_text ),
+                                           size = population_count.x, colour = short_question_text.x ),
              alpha = 0.5) + 
+  xlim(0, 10) +
   
-  labs(title = {nyc_cvrisk_joined$short_question_text},
+  labs(title = "{closest_state}",
        x = 'Coronary Heart Disease Prevalence', 
        y = 'Risk Factor Prevalence') +
   
   # gganimate parts
-  transition_states(short_question_text, transition_length = 1, state_length = 50000, wrap = TRUE) +
+  transition_states(short_question_text.x, transition_length = 1, state_length = 50000, wrap = TRUE) +
   enter_fade() +
   exit_fade()
 
 animate(p, fps = 1)
+
 ```
 
 ###Making the correlation plot
 To make the correlation plot, we first transformed our dataset in the wide format and called it `nyc_cvrisk_wide`.
 
 ```{r}
-library(corrplot)
 nyc_cvrisk_wide = 
   nyc_cvrisk %>% 
-  spread(key = measure_id, value = data_value) %>% 
+  select(-measure_id)%>%
+  spread(key = short_question_text, value = data_value) %>% 
   janitor::clean_names()
 ```
 
-We then created the correlation plot as follows:
+The correlation plot for coronary heart disease and risk factors of interest is as follows:
 
 ```{r}
+
 nyc_cvrisk_wide %>% 
-  select(access2:stroke) %>% 
-  cor()%>%
+  select(annual_checkup:sleep_7_hours) %>% 
+  select("coronary_heart_disease", everything())%>%
+  rename("CHD" = coronary_heart_disease,
+         "Annual Checkup" = annual_checkup,
+         "Binge Drinking" = binge_drinking,
+         "Kidney Disease" = chronic_kidney_disease,
+         "Current Smoking" = current_smoking,
+         "Diabetes" = diabetes,
+         "No Insurance" = health_insurance,
+         "Poor Mental Health" = mental_health,
+         "Obesity" = obesity,
+         "Poor Health" = physical_health,
+         "Physical Inactivity" = physical_inactivity,
+         "Poor Sleep" = sleep_7_hours)%>%
+  cor() %>% 
+  corrplot(., method="circle")
+
+```
+
+The correlation plot for stroke and risk factors of interest is as follows:
+
+```{r}
+
+nyc_cvrisk_wide %>% 
+  select(annual_checkup:stroke)%>%
+  select(stroke, everything()) %>% 
+  select(-c(coronary_heart_disease))%>%
+  rename("Stroke" = stroke,
+         "Annual Checkup" = annual_checkup,
+         "Binge Drinking" = binge_drinking,
+         "Kidney Disease" = chronic_kidney_disease,
+         "Current Smoking" = current_smoking,
+         "Diabetes" = diabetes,
+         "No Insurance" = health_insurance,
+         "Poor Mental Health" = mental_health,
+         "Obesity" = obesity,
+         "Poor Health" = physical_health,
+         "Physical Inactivity" = physical_inactivity,
+         "Poor Sleep" = sleep_7_hours)%>%
+  cor() %>% 
   corrplot(., method="circle")
 ```
 
