@@ -138,7 +138,14 @@ nyc_cad = nyc_cvrisk %>%
   droplevels() %>% 
   select(-measure_id, -short_question_text, -population_count)
 
+nyc_stroke = nyc_cvrisk %>% 
+  filter(short_question_text == "Stroke") %>%
+  droplevels() %>% 
+  select(-measure_id, -short_question_text, -population_count)
+
 nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
+nyc_cvrisk_joined_stroke = left_join(nyc_cvrisk_limited, nyc_stroke, by = "unique_id")
+
 ```
 
 
@@ -179,7 +186,35 @@ p = nyc_cvrisk_joined %>%
 
 animate(p, fps = 1, height = 600, width = 1000, renderer = gifski_renderer())
 
+theme_set(theme_bw())  # pre-set the bw theme.
+pp = nyc_cvrisk_joined_stroke %>%  
+  ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
+  geom_point(aes(size = population_count, colour = risk_factor ),
+             alpha = 0.5) + 
+  xlim(0, 10) +
+  
+  labs(title = "{closest_state}",
+       x = 'Stroke Prevalence', 
+       y = 'Risk Factor Prevalence',
+       colour = 'Risk Factors',
+       size = 'Population Count') +
+  
+  theme(plot.title = element_text(size = 40, face = "bold"),
+        axis.text=element_text(size=18),
+        axis.title=element_text(size=18,face="bold")) + 
+  theme(legend.text=element_text(size=16), legend.title=element_text(size=18,face="bold") ) +
+  
+  # gganimate parts
+  transition_states(risk_factor, transition_length = 1, state_length = 3, wrap = TRUE) +
+  enter_fade() +
+  exit_fade()
+
+animate(pp, fps = 1, height = 600, width = 1000, renderer = gifski_renderer())
+
 ```
+
+
+
 
 ###Making the correlation plot
 To make the correlation plot, we first transformed our dataset in the wide format and called it `nyc_cvrisk_wide`.
@@ -199,7 +234,7 @@ The correlation plot for coronary heart disease and risk factors of interest is 
 nyc_cvrisk_wide %>% 
   select(annual_checkup:sleep_7_hours) %>% 
   select("coronary_heart_disease", everything())%>%
-  rename("CHD" = coronary_heart_disease,
+  rename("Coronary Disease" = coronary_heart_disease,
          "Annual Checkup" = annual_checkup,
          "Binge Drinking" = binge_drinking,
          "Kidney Disease" = chronic_kidney_disease,
@@ -212,14 +247,14 @@ nyc_cvrisk_wide %>%
          "Physical Inactivity" = physical_inactivity,
          "Poor Sleep" = sleep_7_hours)%>%
   cor() %>% 
-  corrplot(., method="circle")
+  corrplot(order = "AOE")
+
 
 ```
 
 The correlation plot for stroke and risk factors of interest is as follows:
 
 ```{r}
-
 nyc_cvrisk_wide %>% 
   select(annual_checkup:stroke)%>%
   select(stroke, everything()) %>% 
@@ -237,14 +272,14 @@ nyc_cvrisk_wide %>%
          "Physical Inactivity" = physical_inactivity,
          "Poor Sleep" = sleep_7_hours)%>%
   cor() %>% 
-  corrplot(., method="circle")
+  corrplot(order = "AOE")
 ```
 
 
 #Additional Analysis
-We used the Shiny Application and leaflet package to perform visualization of geographic distribution of several risk factors and outcomes in New York City.
+We used the `shinyApp` and `leaflet` package to perform visualization of geographic distribution of several risk factors and outcomes in New York City.
 
-We also used Shiny Application to build a program to calculate individual risk of heart disease using the Framingham Risk Score
+We also used `shinyApp` and `plotly` package to build a program to calculate individual risk of heart disease using the Framingham Risk Score
 
 
 #Discussion
