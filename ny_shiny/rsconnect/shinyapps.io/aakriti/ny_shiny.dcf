@@ -4,7 +4,7 @@ username:
 account: aakriti
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 603101
-bundleId: 1739530
+appId: 603676
+bundleId: 1740382
 url: https://aakriti.shinyapps.io/ny_shiny/
-when: 1543935898.41067
+when: 1543956924.56835

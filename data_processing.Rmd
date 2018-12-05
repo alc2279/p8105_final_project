@@ -25,6 +25,7 @@ Risk factors that we're interested in:: (15 total)
 * SLEEP: Sleeping less than 7 hours among adults aged >=18 Years
 
 
+
 Outcomes that we're interested in:: (2 total)
 
 * CHD: Coronary heart disease among adults aged >=18 Years
@@ -34,189 +35,28 @@ Outcomes that we're interested in:: (2 total)
 
 
 ```{r, include=FALSE}
-library(tidyverse)
-library(stringr)
-library(purrr)
-library(viridis)
-library(ggrepel)
-library(ggmap)
-library(plotly)
+  library(tidyverse)
+  library(stringr)
+  library(tidyverse)
+  library(purrr)
+  library(viridis)
+  library(ggrepel)
+  ##library(ggmap)
+  library(plotly)
 ```
 
-## load the data 
-```{r cache = TRUE}
-data = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
-```
+## load the data, not evaluating this
+```{r cache = TRUE, eval = FALSE}
+cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
+    janitor::clean_names() 
 
 
-```{r cache = TRUE}
-cvrisk_url = "https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD"
-
-## Read in data from github
-cvrisk = 
-  read.csv(url(cvrisk_url)) %>% 
-  janitor::clean_names() %>% 
-  as_tibble()
-```
-
-
-
-
-
-```{r, eval = FALSE}
-## Annie eda - this is all exploratory, for final clean dataset code, look at next data chunk
-nyc_cvrisk = 
-  cvrisk %>% 
-  filter(state_desc == "New York", city_name == "New York")
-
-nyc_cvrisk %>% 
-  count(geographic_level)
-
-nyc_cvrisk %>% 
-  count(data_value_type)
-
-## filter just to Census Tract
-nyc_cvrisk = 
-  nyc_cvrisk %>% 
-  filter(geographic_level == "Census Tract")
-
-
-nyc_cvrisk %>% 
-  count(data_source)
-
-nyc_cvrisk %>% 
-  group_by(measure, measure_id, short_question_text) %>% 
-  count() %>% View()
-
-## one to one relationship between all three variables; only keeping measure_id
-
-##create lookup table for measusres
-
-cvrisk_measure_lookup = 
-  cvrisk %>% 
-  group_by(measure, measure_id, short_question_text) %>% 
-  count()
-
-# look at missing values
-
-skimr::skim(nyc_cvrisk)
-
-## 591 missing values in data_value, high_confidence_limit and low_confidence_limit
-## take a deeper dive into these
-
-nyc_cvrisk %>% 
-  filter(is.na(data_value), is.na(high_confidence_limit), is.na(low_confidence_limit)) %>% 
-  count(data_value_footnote)
-
-## For all missing data values, footnote = Estimates suppressed for population less than 50
-
-nyc_cvrisk %>% 
-  filter(is.na(data_value), is.na(high_confidence_limit), is.na(low_confidence_limit)) %>% 
-  count(population_count)
-
-##for all missing values, population counts are less than 50, as the footnote says
-
-##removing all of the null values, just to make things easier for now
-nyc_cvrisk =
-  nyc_cvrisk %>% 
-  filter(!is.na(data_value)) %>% 
-  select(year, geo_location, geo_location, population_count, measure_id, data_value) %>% 
-  janitor::clean_names()
-
-nyc_cvrisk %>% 
-  group_by(year, geo_location) %>% 
-  summarise(n = n()) %>% 
-  ungroup() %>% 
-  select(n) %>% 
-  group_by(n) %>% 
-  count()
-
-##each geo_location/year combination has either 8 or 20 measures associated with it (there are 7 that have less than 8 measures)
-
-## lets look at by year
-nyc_cvrisk %>% 
-  group_by(year, geo_location) %>% 
-  summarise(n = n()) %>% 
-  ungroup() %>% 
-  select(year, n) %>% 
-  group_by(year, n) %>% 
-  count()
-
-
-
-
-## all 2015 data has 20 measures; 2014 data has 8 or less measures
-
-## let's get a breakdown of measures by year
-
-nyc_cvrisk %>% 
-  filter(year == 2015) %>% 
-  count(measure_id)
-
-nyc_cvrisk %>% 
-  filter(year == 2014) %>% 
-  count(measure_id)
-
-## THIS IS AN ISSUE:
-## 2015 and 2014 do not have all 28 measures; 2015 has 20 and 2014 has 8
-## there is no overlap between the risk factors from both of the years
-## because 2015 has more risk factors and only one of the risk factors only included in 2014 
-## is on the list of risk factors that we are interested in looking at, I am going to remove
-## 2014 data
-
-nyc_cvrisk_2015 = 
-  nyc_cvrisk %>% 
-  filter(year == 2015) %>% 
-  select(-year)
-
-nyc_cvrisk_2015 %>% 
-  count(geo_location) %>% 
-  arrange(desc(n))
-
-## all geo_locations have 20 measures
-
-## split up lat/long
-
-nyc_cvrisk_2015 = 
-  nyc_cvrisk_2015 %>% 
-  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
-  mutate(latitude = str_replace(latitude, "\\(", ""),
-         longitude = str_replace(longitude, "\\)", ""))
-
-## only select risk factors and outcomes we're interested in:
-
-nyc_cvrisk_2015 =
-  nyc_cvrisk_2015 %>% 
-  filter(measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
-                         "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
-                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE"))
-  
-
-
-## checking rules for larger dataset
-
-## lets look at by year
-cvrisk %>% 
-  group_by(year, geo_location) %>% 
-  summarise(n = n()) %>% 
-  ungroup() %>% 
-  select(year, n) %>% 
-  group_by(year, n) %>% 
-  count()
-
-cvrisk %>% 
-  filter(year == 2015) %>% 
-  count(measure_id)
-
-cvrisk %>% 
-  filter(year == 2014) %>% 
-  count(measure_id)
-
-## same trends for the entire dataset
+## data used for shiny
+##cvrisk = read_csv("https://chronicdata.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD")
 
 ```
 
-
+## load data 
 ```{r cache = TRUE}
 cvrisk_url = "https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD"
 
@@ -225,14 +65,16 @@ cvrisk =
   read.csv(url(cvrisk_url)) %>% 
   janitor::clean_names() %>% 
   as_tibble()
+
 ```
+
+
+
 
 ```{r}
 ## Annie EDA - final set of tidying data
 
 ## create lookup table for measures and their meaning
-
-
 
 cvrisk_measure_lookup = 
   cvrisk %>% 
@@ -243,58 +85,28 @@ cvrisk_measure_lookup =
 
 ## clean up nyc datset (only include 2015 data, and remove missing values)
 
-nyc_cvrisk_2015 = 
+nyc_cvrisk = 
   cvrisk %>% 
   filter(state_desc == "New York", city_name == "New York",
          geographic_level == "Census Tract",
          !is.na(data_value),
-         year == 2016,
+         ##year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
   separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
   mutate(latitude = str_replace(latitude, "\\(", ""),
          longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value)
+  select(unique_id, latitude, longitude, population_count, measure_id, data_value, short_question_text)
 
-cvrisk %>% 
-  count(measure_id, year) %>% View()
 
-nyc_cvrisk_2015_wide = 
-  nyc_cvrisk_2015 %>% 
+nyc_cvrisk_wide = 
+  nyc_cvrisk %>% 
   spread(key = measure_id, value = data_value) %>% 
   janitor::clean_names()
 
 
-nyc_cvrisk_2015 %>%
-  ggplot(aes(x = measure_id, y = data_value)) + 
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))
-
-
-## clean up full datset (only include 2015 data, and remove missing values)
-cvrisk_2015 = 
-  cvrisk %>% 
-  filter(geographic_level == "Census Tract",
-         !is.na(data_value),
-         year == 2016,
-         measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
-                         "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
-                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
-  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
-  mutate(latitude = str_replace(latitude, "\\(", ""),
-         longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value)
-
-## spread measure_ids
-cvrisk_2015_wide = 
-  cvrisk_2015 %>% 
-  spread(key = measure_id, value = data_value) %>% 
-  janitor::clean_names()
-
-
-
-cvrisk_2015 %>%
+nyc_cvrisk %>%
   ggplot(aes(x = measure_id, y = data_value)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
@@ -305,59 +117,59 @@ Exploratory -- plotting each outcome by each risk factor
 ```{r}
 
 ## nyc plots, each risk factor x chd
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = access2, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = binge, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = bphigh, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = bpmed, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = checkup, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = cholscreen, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = csmoking, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = diabetes, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = highchol, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = kidney, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = lpa, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = mhlth, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = obesity, y = chd)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = phlth, y = chd)) + 
   geom_point()
 
@@ -366,59 +178,59 @@ nyc_cvrisk_2015_wide %>%
 ## nyc plots, each risk factor x stroke
 
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = access2, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = binge, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = bphigh, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = bpmed, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = checkup, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = cholscreen, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = csmoking, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = diabetes, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = highchol, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = kidney, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = lpa, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = mhlth, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = obesity, y = stroke)) + 
   geom_point()
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   ggplot(aes(x = phlth, y = stroke)) + 
   geom_point()
 
@@ -427,15 +239,14 @@ nyc_cvrisk_2015_wide %>%
 
 Correlation between risk factors/outcomes
 ```{r}
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   select(access2:stroke) %>% 
-  cor() %>% 
-  View()
+  cor()
 
 ## install.packages("corrplot")
 library(corrplot)
 
-nyc_cvrisk_2015_wide %>% 
+nyc_cvrisk_wide %>% 
   select(access2:stroke) %>% 
   cor()%>%
   corrplot(., method="circle")
@@ -446,61 +257,60 @@ nyc_cvrisk_2015_wide %>%
 library(patchwork)
 library(tidyverse)
 
-cvrisk %>% count(measure_id, year) %>% View()
 
-access2_plot = nyc_cvrisk_2015_wide %>% 
+access2_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = access2, y = chd)) + 
   geom_point()
 
-binge_plot = nyc_cvrisk_2015_wide %>% 
+binge_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = binge, y = chd)) + 
   geom_point()
 
-bphigh_plot = nyc_cvrisk_2015_wide %>% 
+bphigh_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = bphigh, y = chd)) + 
   geom_point()
 
-bpmed_plot = nyc_cvrisk_2015_wide %>% 
+bpmed_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = bpmed, y = chd)) + 
   geom_point()
 
-checkup_plot = nyc_cvrisk_2015_wide %>% 
+checkup_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = checkup, y = chd)) + 
   geom_point()
 
-cholscreen_plot = nyc_cvrisk_2015_wide %>% 
+cholscreen_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = cholscreen, y = chd)) + 
   geom_point()
 
-csmoking_plot = nyc_cvrisk_2015_wide %>% 
+csmoking_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = csmoking, y = chd)) + 
   geom_point()
 
-diabetes_plot = nyc_cvrisk_2015_wide %>% 
+diabetes_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = diabetes, y = chd)) + 
   geom_point()
 
-highchol_plot = nyc_cvrisk_2015_wide %>% 
+highchol_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = highchol, y = chd)) + 
   geom_point()
 
-kidney_plot = nyc_cvrisk_2015_wide %>% 
+kidney_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = kidney, y = chd)) + 
   geom_point()
 
-lpa_plot = nyc_cvrisk_2015_wide %>% 
+lpa_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = lpa, y = chd)) + 
   geom_point()
 
-mhlth_plot = nyc_cvrisk_2015_wide %>% 
+mhlth_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = mhlth, y = chd)) + 
   geom_point()
 
-obesity_plot = nyc_cvrisk_2015_wide %>% 
+obesity_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = obesity, y = chd)) + 
   geom_point()
 
-phlth_plot = nyc_cvrisk_2015_wide %>% 
+phlth_plot = nyc_cvrisk_wide %>% 
   ggplot(aes(x = phlth, y = chd)) + 
   geom_point()
 
@@ -508,6 +318,10 @@ phlth_plot = nyc_cvrisk_2015_wide %>%
 ##internal
 (phlth_plot + obesity_plot + mhlth_plot + kidney_plot) / 
   (highchol_plot + diabetes_plot+ bphigh_plot)
+
+
+(phlth_plot + obesity_plot) / 
+  (highchol_plot + diabetes_plot)
 
 ##external
 (lpa_plot + csmoking_plot + cholscreen_plot + checkup_plot) / 
@@ -520,8 +334,41 @@ phlth_plot = nyc_cvrisk_2015_wide %>%
   (binge_plot + access2_plot)
 
 
-cvrisk = read_csv(file = "./raw_data/500_Cities__Local_Data_for_Better_Health__2018_release.csv") %>% 
-    janitor::clean_names()
+```
+
+
+
+```{r}
+## gganimate packages and day tidying::::
+
+
+## this is the old package - can use gganimate with this package
+devtools::install_github("nteetor/gganimate")
+
+## new gganimate package
+install.packages("cowplot")
+devtools::install_github("dgrtwo/gganimate")
+
+## dataset used in examples
+install.packages("gapminder")
+
+library("dgrtwo/gganimate")
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+library(gganimate)
+##library(installr)
+
+## have not gotten ImageMagick to work correctly
+install.packages("installr")
+install.ImageMagick()
+
+## create table for animation
+chd_by_id = nyc_cvrisk %>% 
+  group_by(unique_id) %>% 
+  summarise(chd_value = max(data_value)) 
+
+nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
 
 
 
@@ -529,6 +376,7 @@ cvrisk = read_csv(file = "./raw_data/500_Cities__Local_Data_for_Better_Health__2
 
 Heat maps of the outcome (CHD) and covariates
 
+<<<<<<< HEAD
 Top 10 cities with coronary heart disease (external factors)
 
 ```{r}
@@ -637,3 +485,44 @@ levelplot(bottom_matrix, col.regions=heat.colors, colorkey=list(space="right"),
 ```
 
 It is difficult to visually see the relationships between the variables (even when there is a high correlation) because the range in each variable is fairly small
+=======
+```{r}
+## gganimate attempts
+
+
+theme_set(theme_bw())  # pre-set the bw theme.
+
+
+## using transition_length and state_length
+p <- 
+  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = short_question_text)) +
+  geom_point(data = nyc_cvrisk_joined, aes( 
+                                           size = population_count, colour = short_question_text ),
+             alpha = 0.5) + 
+  ggtitle(nyc_cvrisk_joined$short_question_text) +
+  
+  labs(
+       x = 'Coronary Heart Prevalence', 
+       y = 'Risk Factor Prevalence') +
+  
+  # gganimate parts
+  transition_states(short_question_text, transition_length = 1, state_length = 50000, wrap = TRUE) +
+  enter_fade() +
+  exit_fade()
+
+animate(p, fps = 1)
+
+
+## title = 'Risk Factor: {measure_id}', 
+
+## add title
+## facet by stroke (remove stroke and chd)
+## add title
+## slow down
+## make points more transparent
+## change order
+
+
+
+
+>>>>>>> 6038bdc53d5b718bdd4e1b9248d92a6d17aa9ff2
