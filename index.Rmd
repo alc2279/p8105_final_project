@@ -1,5 +1,6 @@
 ---
 title: "The Heart Project"
+head: <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 ---
 
 ### This is our final project website!
