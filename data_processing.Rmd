@@ -367,7 +367,8 @@ chd_by_id = nyc_cvrisk %>%
   group_by(unique_id) %>% 
   summarise(chd_value = max(data_value)) 
 
-nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
+nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id") %>% 
+  rename("Population" = population_count, "Risk Factor" = short_question_text)
 
 ```
 
@@ -382,9 +383,9 @@ theme_set(theme_bw())  # pre-set the bw theme.
 ## using transition_length and state_length
 
 p <- 
-  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = short_question_text, label = short_question_text)) +
+  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = "Risk Factor", label = "Risk Factor")) +
   geom_point(data = nyc_cvrisk_joined, aes( 
-                                           size = population_count, colour = short_question_text ),
+                                           size = "Population", colour = "Risk Factor" ),
              alpha = 0.5) + 
   
   labs(title = "{closest_state}",
