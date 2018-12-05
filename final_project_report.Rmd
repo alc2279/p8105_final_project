@@ -115,14 +115,11 @@ nyc_cvrisk =
   filter(state_desc == "New York", city_name == "New York",
          geographic_level == "Census Tract",
          !is.na(data_value),
-         #year == 2016,
+         year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
-                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
-  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
-  mutate(latitude = str_replace(latitude, "\\(", ""),
-         longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value, short_question_text)
+                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>%
+  select(unique_id, population_count, measure_id, data_value, short_question_text)
 ```
 
 ###Making the animated scatterplot
@@ -130,12 +127,15 @@ We first created another dataset that can be used for the animated scatterplot s
 
 ```{r}
 nyc_cvrisk_limited = nyc_cvrisk %>% 
-  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication"))
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication")) %>% 
+  mutate(risk_factor = short_question_text) %>% 
+  select(-short_question_text, -measure_id)
 
 nyc_cad = nyc_cvrisk %>% 
-  filter(short_question_text == "Coronary Heart Disease")
+  filter(short_question_text == "Coronary Heart Disease") %>% 
+  select(-measure_id, -short_question_text, -population_count)
 
-nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
+nyc_cvrisk_joined = inner_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
 ```
 
 We then installed the package required for animation
@@ -144,30 +144,35 @@ devtools::install_github("dgrtwo/gganimate")
 ```
 
 We then created an animated scatterplot with Coronary Heart DIsease prevalence on the X-axis and different risk factors on the Y-axis
-```{r}
+```{r, warning=FALSE}
 theme_set(theme_bw())  # pre-set the bw theme.
 
 
 ## using transition_length and state_length
 library(ggplot2)
 library(gganimate)
-p <- 
-  ggplot(data = nyc_cvrisk_joined, aes(x = data_value.y, y = data_value.x, frame = short_question_text.x)) +
-  geom_point(data = nyc_cvrisk_joined, aes( 
-                                           size = population_count.x, colour = short_question_text.x ),
+p = nyc_cvrisk_joined %>%  
+  ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
+  geom_point(aes(size = population_count, colour = risk_factor ),
              alpha = 0.5) + 
   xlim(0, 10) +
   
   labs(title = "{closest_state}",
        x = 'Coronary Heart Disease Prevalence', 
-       y = 'Risk Factor Prevalence') +
+       y = 'Risk Factor Prevalence',
+       colour = "Risk Factors") +
+  
+  theme(plot.title = element_text(size = 40, face = "bold"),
+        axis.text=element_text(size=18),
+        axis.title=element_text(size=18,face="bold")) + 
+  theme(legend.text=element_text(size=16), legend.title=element_text(size=18,face="bold") ) +
   
   # gganimate parts
-  transition_states(short_question_text.x, transition_length = 1, state_length = 50000, wrap = TRUE) +
+  transition_states(risk_factor, transition_length = 1, state_length = 50000, wrap = TRUE) +
   enter_fade() +
   exit_fade()
 
-animate(p, fps = 1)
+animate(p, fps = 1, height = 800, width = 800)
 
 ```
 
