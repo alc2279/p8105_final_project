@@ -119,6 +119,7 @@ nyc_cvrisk =
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>%
+  droplevels() %>% 
   select(unique_id, population_count, measure_id, data_value, short_question_text)
 ```
 
@@ -128,11 +129,13 @@ We first created another dataset that can be used for the animated scatterplot s
 ```{r}
 nyc_cvrisk_limited = nyc_cvrisk %>% 
   filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication")) %>% 
+  droplevels() %>% 
   mutate(risk_factor = short_question_text) %>% 
   select(-short_question_text, -measure_id)
 
 nyc_cad = nyc_cvrisk %>% 
-  filter(short_question_text == "Coronary Heart Disease") %>% 
+  filter(short_question_text == "Coronary Heart Disease") %>%
+  droplevels() %>% 
   select(-measure_id, -short_question_text, -population_count)
 
 nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
