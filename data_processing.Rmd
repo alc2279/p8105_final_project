@@ -363,11 +363,13 @@ install.packages("installr")
 install.ImageMagick()
 
 ## create table for animation
-chd_by_id = nyc_cvrisk %>% 
-  group_by(unique_id) %>% 
-  summarise(chd_value = max(data_value)) 
+nyc_cvrisk_limited = nyc_cvrisk %>% 
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication"))
 
-nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
+nyc_cad = nyc_cvrisk %>% 
+  filter(short_question_text == "Coronary Heart Disease")
+
+nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
 
 ```
 
@@ -382,17 +384,18 @@ theme_set(theme_bw())  # pre-set the bw theme.
 ## using transition_length and state_length
 
 p <- 
-  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = short_question_text, label = short_question_text)) +
+  ggplot(data = nyc_cvrisk_joined, aes(x = data_value.y, y = data_value.x, frame = short_question_text.x)) +
   geom_point(data = nyc_cvrisk_joined, aes( 
-                                           size = population_count, colour = short_question_text ),
+                                           size = population_count.x, colour = short_question_text.x ),
              alpha = 0.5) + 
+  xlim(0, 10) +
   
   labs(title = "{closest_state}",
        x = 'Coronary Heart Disease Prevalence', 
        y = 'Risk Factor Prevalence') +
   
   # gganimate parts
-  transition_states(short_question_text, transition_length = 1, state_length = 50000, wrap = TRUE) +
+  transition_states(short_question_text.x, transition_length = 1, state_length = 50000, wrap = TRUE) +
   enter_fade() +
   exit_fade()
 
