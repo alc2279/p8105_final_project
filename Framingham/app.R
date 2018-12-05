@@ -1,13 +1,9 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+## this shiny app is to calculate the Framingham risk score.
 
 library(shiny)
+library(ggradar)
+library(tidyverse)
+library(plotly)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -48,18 +44,24 @@ ui <- fluidPage(
       # Show a plot of the generated distribution
       mainPanel(
         tabsetPanel(
-          tabPanel("Introduction",
+          tabPanel("Result",
                   br(),
-                  verbatimTextOutput("Intro")
+                  h3('risk points in each term'),
+##########################
+                    plotlyOutput("RiskRadarPlot"),
+              
+                  h3('Risk points:'),
+                  textOutput('PointsOutput'),
+                  br(),
+                  h3('10-year risk:'),
+                  textOutput('RiskOutput')
           ),
-          tabPanel("Relevant links", 
-                   br(), uiOutput("tab"))
-        ), 
-         h3('Risk points:'),
-         textOutput('PointsOutput'),
-         br(),
-         h3('10-year risk:'),
-         textOutput('RiskOutput')
+          tabPanel("Relevant information", 
+                   br(),
+                   verbatimTextOutput("Intro"),
+                   br(),
+                   uiOutput("tab"))
+        )
       )
    )
 )
@@ -156,7 +158,130 @@ men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
   
   return(points)
 }
-
+## points in each term
+out = new_men_points(30, 160, "Smoker", 60, "Yes", 180)
+new_men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
+{
+  points = 0
+  
+  # Age points
+  if(age < 35) age_points = points - 9
+  else if(age < 40) age_points = points - 4
+  else if(age < 45) age_points = points
+  else if(age < 50) age_points = points + 3
+  else if(age < 55) age_points = points + 6
+  else if(age < 60) age_points = points + 8
+  else if(age < 65) age_points = points + 10
+  else if(age < 70) age_points = points + 11
+  else if(age < 75) age_points = points + 12
+  else if(age < 80) age_points = points + 13
+  
+  # Total cholesterol points
+  if(age > 19 & age < 40)
+  {
+    # Age 20–39 years
+    if(total_chol < 160) chol_points = points
+    else if (total_chol < 200 ) chol_points = points + 4
+    else if(total_chol < 240) chol_points = points + 7
+    else if(total_chol < 280) chol_points = points + 9
+    else chol_points = points + 11
+  } else if(age > 39 & age < 50)
+  {
+    # Age 40–49 years
+    if(total_chol < 160) chol_points = points
+    else if(total_chol < 200) chol_points = points + 3
+    else if(total_chol < 240) chol_points = points + 5
+    else if(total_chol < 280) chol_points = points + 6
+    else chol_points = points + 8
+  } else if(age > 49 & age < 60)
+  {
+    # Age 50–59 years
+    if(total_chol < 160) chol_points = points
+    else if(total_chol < 200) chol_points = points + 2
+    else if(total_chol < 240) chol_points = points + 3
+    else if(total_chol < 280) chol_points = points + 4
+    else chol_points = points + 5
+  } else if(age > 59 & age < 70)
+  {
+    # Age 60–69 years
+    if(total_chol < 160) chol_points = points
+    else if(total_chol < 200) chol_points = points + 1
+    else if(total_chol < 240) chol_points = points + 1
+    else if(total_chol < 280) chol_points = points + 2
+    else chol_points = points + 3
+  } else 
+  {
+    # Age 70–79 years
+    if(total_chol > 240) chol_points = points + 1
+  } 
+  
+  # Cigarette smoker points
+  if(smoker == "Smoker")
+  {
+    if(age > 19 & age < 40) smoke_points = points + 8
+    else if(age < 50) smoke_points = points + 5
+    else if(age < 60) smoke_points = points + 3
+    else if(age < 70) smoke_points = points + 1
+    else smoke_points = points + 1
+  }else smoke_points = 0
+  
+  # HDL cholesterol points
+  if(HDL_chol > 59) hdl_points = points - 1
+  else if(HDL_chol > 49) hdl_points = points
+  else if(HDL_chol > 39) hdl_points = points + 1
+  else hdl_points = points + 2
+  
+  # Systolic blood pressure points
+  if(treated == 'Yes')
+  {
+    if(SBP < 120) sbp_points = points
+    else if(SBP < 130) sbp_points = points + 1
+    else if(SBP < 140) sbp_points = points + 2
+    else if(SBP < 160) sbp_points = points + 2
+    else sbp_points = points + 3
+  } else if(treated == 'No')
+  {
+    if(SBP < 130) sbp_points = points
+    else if(SBP < 140) sbp_points = points + 1
+    else if(SBP < 160) sbp_points = points + 1
+    else sbp_points = points + 2
+  }
+ 
+  
+   points_df = tibble(hdl_points, chol_points, 
+                     smoke_points, age_points, sbp_points) %>% 
+     gather(key = term, value = points, hdl_points:sbp_points) %>% 
+     mutate(min = c(-1, 0, 0, -9, 0),
+            max = c(2, 11, 8, 13, 3),
+            range = max - min, 
+            scale = round(100*(points-min)/range, 0))
+   
+   total_points = sum(hdl_points, age_points, chol_points, 
+                      smoke_points, age_points, sbp_points)
+  
+   return(list(points_df = points_df, total_points = total_points))
+                
+}
+#####################################
+radar_plotly = function(points_df){
+  scale = append(points_df$scale, points_df$scale[1])
+  plot_ly(
+    type = 'scatterpolar',
+    r = scale,
+    theta = c('HDL cholesterol','Total cholesterol','Smoke', 'Age', 'SBP', 'HDL cholesterol'),
+    fill = 'toself'
+  ) %>%
+    layout(
+      polar = list(
+        radialaxis = list(
+          visible = T,
+          range = c(0,100)
+        )
+      ),
+      showlegend = F
+    )
+}
+#################################################
 ## calculate points in women
 women_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
 {
@@ -166,7 +291,7 @@ women_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
   if(age < 35) points = points - 7
   else if(age < 40) points = points - 3
   else if(age < 45) points = points
-  else if(age < 50) points = point + 3
+  else if(age < 50) points = points + 3
   else if(age < 55) points = points + 6
   else if(age < 60) points = points + 8
   else if(age < 65) points = points + 10
@@ -313,11 +438,17 @@ server <- function(input, output) {
    output$Intro <- renderText({"The Framingham Risk Score is a gender-specific algorithm used to estimate the 10-year cardiovascular risk of an individual.
 It is one of a number of scoring systems used to determine an individual's chances of developing cardiovascular disease."})
    
+   output$RiskRadarPlot <- renderPlotly({
+   ########################
+   radar_plotly(new_men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$points_df)
+   
+})
+   ###############
    output$PointsOutput <- renderPrint({
     
        if(sex() == 'Male')
        {
-         men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+         new_men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$total_points
        }
        else if(sex() == 'Female')
        {
