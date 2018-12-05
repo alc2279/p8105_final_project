@@ -1,0 +1,178 @@
+---
+title: "Correlation between Risk Factors and Coronary Disease/Stroke"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+```
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r, cache=TRUE}
+cvrisk_url = "https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD"
+
+cvrisk = 
+  read.csv(url(cvrisk_url)) %>% 
+  janitor::clean_names() %>% 
+  as_tibble()
+
+nyc_cvrisk = 
+  cvrisk %>% 
+  filter(state_desc == "New York", city_name == "New York",
+         geographic_level == "Census Tract",
+         !is.na(data_value),
+         year == 2016,
+         measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
+                         "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
+                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>%
+  droplevels() %>% 
+  select(unique_id, population_count, measure_id, data_value, short_question_text)
+
+nyc_cvrisk_limited = nyc_cvrisk %>% 
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication")) %>% 
+  droplevels() %>% 
+  mutate(risk_factor = short_question_text) %>% 
+  select(-short_question_text, -measure_id)
+
+nyc_cad = nyc_cvrisk %>% 
+  filter(short_question_text == "Coronary Heart Disease") %>%
+  droplevels() %>% 
+  select(-measure_id, -short_question_text, -population_count)
+
+nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
+
+theme_set(theme_bw())  # pre-set the bw theme.
+
+
+## using transition_length and state_length
+library(ggplot2)
+library(gganimate)
+p = nyc_cvrisk_joined %>%  
+  ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
+  geom_point(aes(size = population_count, colour = risk_factor ),
+             alpha = 0.5) + 
+  xlim(0, 10) +
+  
+  labs(title = "{closest_state}",
+       x = 'Coronary Heart Disease Prevalence', 
+       y = 'Risk Factor Prevalence',
+       colour = 'Risk Factors',
+       size = 'Population Count') +
+  
+  theme(plot.title = element_text(size = 40, face = "bold"),
+        axis.text=element_text(size=18),
+        axis.title=element_text(size=18,face="bold")) + 
+  theme(legend.text=element_text(size=16), legend.title=element_text(size=18,face="bold") ) +
+  
+  # gganimate parts
+  transition_states(risk_factor, transition_length = 1, state_length = 3, wrap = TRUE) +
+  enter_fade() +
+  exit_fade()
+
+animate(p, fps = 2, height = 500, width = 500)
+```
+
+
+### Chart B
+
+```{r}
+nyc_cvrisk_wide = 
+  nyc_cvrisk %>% 
+  select(-measure_id)%>%
+  spread(key = short_question_text, value = data_value) %>% 
+  janitor::clean_names()
+
+nyc_cvrisk_wide %>% 
+  select(annual_checkup:sleep_7_hours) %>% 
+  select("coronary_heart_disease", everything())%>%
+  rename("Coronary Disease" = coronary_heart_disease,
+         "Annual Checkup" = annual_checkup,
+         "Binge Drinking" = binge_drinking,
+         "Kidney Disease" = chronic_kidney_disease,
+         "Current Smoking" = current_smoking,
+         "Diabetes" = diabetes,
+         "No Insurance" = health_insurance,
+         "Poor Mental Health" = mental_health,
+         "Obesity" = obesity,
+         "Poor Health" = physical_health,
+         "Physical Inactivity" = physical_inactivity,
+         "Poor Sleep" = sleep_7_hours)%>%
+  cor() %>% 
+  corrplot(method = "square", order = "AOE", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
+         # hide correlation coefficient on the principal diagonal
+         diag=FALSE)
+```
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Chart C
+
+```{r}
+nyc_stroke = nyc_cvrisk %>% 
+  filter(short_question_text == "Stroke") %>%
+  droplevels() %>% 
+  select(-measure_id, -short_question_text, -population_count)
+
+nyc_cvrisk_joined_stroke = left_join(nyc_cvrisk_limited, nyc_stroke, by = "unique_id")
+
+theme_set(theme_bw())  # pre-set the bw theme.
+pp = nyc_cvrisk_joined_stroke %>%  
+  ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
+  geom_point(aes(size = population_count, colour = risk_factor ),
+             alpha = 0.5) + 
+  xlim(0, 10) +
+  
+  labs(title = "{closest_state}",
+       x = 'Stroke Prevalence', 
+       y = 'Risk Factor Prevalence',
+       colour = 'Risk Factors',
+       size = 'Population Count') +
+  
+  theme(plot.title = element_text(size = 40, face = "bold"),
+        axis.text=element_text(size=18),
+        axis.title=element_text(size=18,face="bold")) + 
+  theme(legend.text=element_text(size=16), legend.title=element_text(size=18,face="bold") ) +
+  
+  # gganimate parts
+  transition_states(risk_factor, transition_length = 1, state_length = 3, wrap = TRUE) +
+  enter_fade() +
+  exit_fade()
+
+animate(pp, fps = 2, height = 500, width = 500)
+```
+
+### Chart D
+
+```{r}
+nyc_cvrisk_wide %>% 
+  select(annual_checkup:stroke)%>%
+  select(stroke, everything()) %>% 
+  select(-c(coronary_heart_disease))%>%
+  rename("Stroke" = stroke,
+         "Annual Checkup" = annual_checkup,
+         "Binge Drinking" = binge_drinking,
+         "Kidney Disease" = chronic_kidney_disease,
+         "Current Smoking" = current_smoking,
+         "Diabetes" = diabetes,
+         "No Insurance" = health_insurance,
+         "Poor Mental Health" = mental_health,
+         "Obesity" = obesity,
+         "Poor Health" = physical_health,
+         "Physical Inactivity" = physical_inactivity,
+         "Poor Sleep" = sleep_7_hours)%>%
+  cor() %>% 
+  corrplot(method = "square", order = "AOE", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
+         # hide correlation coefficient on the principal diagonal
+         diag=FALSE)
+```
+
