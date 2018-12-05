@@ -9,6 +9,8 @@ navbar:
       href: https://aakriti.shinyapps.io/ny_shiny/
     - text: "Find Your Risk!"
       href: https://jiyueqin.shinyapps.io/framingham/
+    - text: "Project Report"
+      href: "final_project_report.html"
     - icon: fa-heartbeat fa-lg
       href: https://heartbeathealth.com/
     - icon: fa-github fa-lg
