@@ -7,7 +7,7 @@ navbar:
       href: flexdashboard.html
     - text: "NYC Map"
       href: https://aakriti.shinyapps.io/ny_shiny/
-    - text: "Framingham Model"
+    - text: "Find Your Risk!"
       href: https://jiyueqin.shinyapps.io/framingham/
     - icon: fa-github fa-lg
       href: https://github.com/alc2279/p8105_final_project
