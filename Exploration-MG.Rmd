@@ -301,4 +301,11 @@ corrplot(M)
 * PHLTH: Physical health not good for >=14 days among adults aged >=18 Years
 * SLEEP: Sleeping less than 7 hours among adults aged >=18 Years
 
+```{r}
+
+cv_data%>%
+  select(Data_Value, Short_Question_Text)%>%
+  filter(Short_Question_Text == "Coronary Heart Disease")
+  
+```
 
