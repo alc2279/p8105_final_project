@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Final Project Proposal</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/journal.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
+<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
+<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 61px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+
+.section h2 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h3 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h4 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h5 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+.section h6 {
+  padding-top: 66px;
+  margin-top: -66px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="flexdashboard.html">Analysis</a>
+</li>
+<li>
+  <a href="https://aakriti.shinyapps.io/ny_shiny/">NYC Map</a>
+</li>
+<li>
+  <a href="https://jiyueqin.shinyapps.io/framingham/">Find Your Risk!</a>
+</li>
+<li>
+  <a href="https://heartbeathealth.com/">
+    <span class="fa fa-heartbeat fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://github.com/alc2279/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="mailto:&lt;alc2279@cumc.columbia.edu&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Final Project Proposal</h1>
+<h4 class="date"><em>November 8, 2018</em></h4>
+
+</div>
+
+
+<div id="the-group-members-names-and-unis" class="section level2">
+<h2>The group members (names and UNIs)</h2>
+<ul>
+<li>Aakriti Gupta: ag3786</li>
+<li>Alex Goldstein: ajg2231</li>
+<li>Annie Clark: alc2279</li>
+<li>Jiyue Qin: jq2293</li>
+<li>Margaret Gacheru: mg3861</li>
+</ul>
+</div>
+<div id="the-tentative-project-title" class="section level2">
+<h2>The tentative project title</h2>
+<p>Evaluating Risk Factors of Cardiovascular Mortality</p>
+</div>
+<div id="the-motivation-for-this-project" class="section level2">
+<h2>The motivation for this project</h2>
+<p>Heart disease is currently the leading cause of death in the US in both men and women. While this is a disease that takes 1 in every 4 deaths, 80% of the cases are actually preventable. Education about lifestyle choices (i.e. diet, exercise) and awareness around the impact that lifestyle choices have on your health are essential in giving people the power to make healthy choices.</p>
+<p>A member of the team, Aakriti, is involved in a startup called <a href="https://heartbeathealth.com/">Heartbeat</a>, which is clinic aimed at providing cardiovascular screening and heart disease prevention education, specifically in individuals who have the opportunity to change their lifestyles in their 30s and 40s. Our goal is to provide data-driven insights that can be used by the Heartbeat team and patients about the risk factors of heart disease and their geo-spatial distribution. Additionally, we aim to create an interactive visualization tool that will enable people to understand the impact of cardiovascular risk factors.</p>
+</div>
+<div id="the-intended-final-products" class="section level2">
+<h2>The intended final products</h2>
+<ul>
+<li>Visualizations/statistical models showing associations between cardiovascular mortality and risk factors, including location specific (at the county level) visualizations</li>
+<li>Interactive Shiny tool that will allow patients to input their data (observe changes in risk based on behavior/health changes)</li>
+</ul>
+</div>
+<div id="the-anticipated-data-sources" class="section level2">
+<h2>The anticipated data sources</h2>
+<ul>
+<li><a href="http://www.countyhealthrankings.org/explore-health-rankings/rankings-data-documentation?fbclid=IwAR1YHiMm53wKQCr3nE_AhvKumi_jpJvR_HUMkQVy8ZxZKnzT2AHPhE_IwYU">Risk Factors by County (2013 to 2015)</a></li>
+<li><a href="https://catalog.data.gov/dataset/heart-disease-mortality-data-among-us-adults-35-by-state-territory-and-county-5fb7c?fbclid=IwAR134ApPkx99gK3qvvfWoCBjUQA45aP_OB_Ht5s0amyfTrxPJFEu0XsXBpU">Mortality Rates by County (2013 to 2015)</a></li>
+</ul>
+</div>
+<div id="the-planned-analyses-visualizations-coding-challenges" class="section level2">
+<h2>The planned analyses / visualizations / coding challenges</h2>
+<ul>
+<li>Privacy issues with entering individual health data into shiny</li>
+<li>Finding and implementing the right packages for the spatial data and framingham model</li>
+<li>Learning shiny</li>
+<li>The imcorporation of GIS data to visualize the county level risk and mortality.</li>
+</ul>
+</div>
+<div id="the-planned-timeline" class="section level2">
+<h2>The planned timeline</h2>
+<ul>
+<li>Week 0 (Nov 12 - 18):
+<ul>
+<li>Proposal approved after review meeting</li>
+<li>Milestone 1: Data tidied</li>
+</ul></li>
+<li>Week 1 (Nov 19 - 25):
+<ul>
+<li>Milestone 2: Initial data exploration/visualization</li>
+<li>Milestone 3: Final data visualizations/conclusions</li>
+</ul></li>
+<li>Week 2 (Nov 26 - Dec 3):
+<ul>
+<li>Milestone 4: Shiny and framingham visualization</li>
+<li>Milestone 5: Report, website and screencast</li>
+</ul></li>
+<li>Week 3 (Dec 4 - Dec 6): (note: short week)
+<ul>
+<li>Finish up deliverables</li>
+</ul></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -93,11 +93,9 @@ nyc_cvrisk =
          ##year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
-                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
-  separate(geo_location, into = c("latitude", "longitude"), sep = ",") %>% 
-  mutate(latitude = str_replace(latitude, "\\(", ""),
-         longitude = str_replace(longitude, "\\)", "")) %>% 
-  select(unique_id, latitude, longitude, population_count, measure_id, data_value, short_question_text)
+                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>%
+  droplevels() %>% 
+ select(unique_id, population_count, measure_id, data_value, short_question_text)
 
 
 nyc_cvrisk_wide = 
@@ -364,10 +362,16 @@ install.ImageMagick()
 
 ## create table for animation
 nyc_cvrisk_limited = nyc_cvrisk %>% 
-  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication"))
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication")) %>% droplevels()
 
+<<<<<<< HEAD
+nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id") %>% 
+  rename("Population" = population_count, "Risk Factor" = short_question_text)
+=======
 nyc_cad = nyc_cvrisk %>% 
-  filter(short_question_text == "Coronary Heart Disease")
+  filter(short_question_text == "Coronary Heart Disease") %>% 
+  droplevels()
+>>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
 
 nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
 
@@ -495,9 +499,15 @@ theme_set(theme_bw())  # pre-set the bw theme.
 ## using transition_length and state_length
 
 p <- 
+
+  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = "Risk Factor", label = "Risk Factor")) +
+  geom_point(data = nyc_cvrisk_joined, aes( 
+                                           size = "Population", colour = "Risk Factor" ),
+=======
   ggplot(data = nyc_cvrisk_joined, aes(x = data_value.y, y = data_value.x, frame = short_question_text.x)) +
   geom_point(data = nyc_cvrisk_joined, aes( 
                                            size = population_count.x, colour = short_question_text.x ),
+>>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
              alpha = 0.5) + 
   xlim(0, 10) +
   

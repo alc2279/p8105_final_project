@@ -19,10 +19,7 @@ library(data.table)
 library(highcharter)
 
 #Read in dataset
-Data = fread('https://chronicdata.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD')
-Data = Data %>%
-  filter(StateDesc == "New York", CityName == "New York", GeographicLevel == "Census Tract")
-
+Data = read_csv(file = "./data/Data.csv")
 
 #Specify shinyApp(ui, server)
 shinyApp(options = list(height = 1000), 
