@@ -263,7 +263,7 @@ nyc_cvrisk_wide %>%
   cor() %>% 
   corrplot(method = "square", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
          # hide correlation coefficient on the principal diagonal
-         diag=FALSE)
+         diag=FALSE, number.cex = .7)
 
 
 ```
@@ -292,7 +292,7 @@ nyc_cvrisk_wide %>%
   cor() %>% 
   corrplot(method = "square", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
          # hide correlation coefficient on the principal diagonal
-         diag=FALSE)
+         diag=FALSE, number.cex = .7)
 ```
 
 
@@ -347,7 +347,7 @@ We also used `shinyApp` and `plotly` package to build a program to calculate ind
 
 In the process of building this project, we gained several insights about risk factors for heart disease. 
 
-* In particular, the strength of correlation of lifestyle risk factors with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in [this article](http://www.onlinejacc.org/content/accj/69/1/25.full.pdf)
+* In particular, the strength of correlation of lifestyle risk factors with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in [this article](http://www.onlinejacc.org/content/accj/69/1/25.full.pdf).
 
 * Visualization of geographic variation of these risk factors in outcomes in New York City provide insights into target neighborhoods for implementation of cardiovascular risk reduction policies.
 
