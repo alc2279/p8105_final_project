@@ -1,26 +1,7 @@
 ---
-title: "Annie Clark"
+title: "The Heart Project"
 ---
 
-#### Biostatistics Master's Student
-#### Columbia Mailman School of Publich Health
+### This is our final project website!
 
-<img src = "images/annie.png" style = "width:40%">
-
-### About
-I’m a first year Biostatistics Master's Student at Columbia University Mailman School of Public Health. I previously worked at [Google](https://www.google.com) from 2013 - 2018 as a Program Manager and at [PricewaterhouseCoopers](https://www.pwc.com/sg/en/services/consulting/forensics/forensic-technology-solutions.html) from 2009 - 2013 as a Forensic Technology Consultant. I completed my B.A. in Statistics at Duke University in 2009. 
-
-Additional information on my education and experience can be found on my [resume](resume.html). <br> 
-
-### Data Science Homework
-Problem 2 on homework 4 can be found [here](example.html). <br> 
-
-### Contact Information
-
-Annie Clark<br> 
-[Department of Biostatistics](https://www.mailman.columbia.edu/become-student/departments/biostatistics)<br> 
-[Columbia Mailman School of Public Health](https://www.mailman.columbia.edu/)<br> 
-722 West 168th Street<br> 
-New York, New York 10032
-
-Email: [alc2279@cumc.columbia.edu](mailto:alc2279@cumc.columbia.edu)
+This is where we'll put our screencast + some of our report information
