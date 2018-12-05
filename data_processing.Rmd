@@ -250,7 +250,6 @@ nyc_cvrisk_wide %>%
   select(access2:stroke) %>% 
   cor()%>%
   corrplot(., method="circle")
-
 ```
 
 ```{r}
@@ -370,8 +369,6 @@ chd_by_id = nyc_cvrisk %>%
 
 nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id")
 
-
-
 ```
 
 
@@ -383,15 +380,15 @@ theme_set(theme_bw())  # pre-set the bw theme.
 
 
 ## using transition_length and state_length
+
 p <- 
-  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = short_question_text)) +
+  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = short_question_text, label = short_question_text)) +
   geom_point(data = nyc_cvrisk_joined, aes( 
                                            size = population_count, colour = short_question_text ),
              alpha = 0.5) + 
-  ggtitle(nyc_cvrisk_joined$short_question_text) +
   
-  labs(
-       x = 'Coronary Heart Prevalence', 
+  labs(title = "{closest_state}",
+       x = 'Coronary Heart Disease Prevalence', 
        y = 'Risk Factor Prevalence') +
   
   # gganimate parts
@@ -401,15 +398,7 @@ p <-
 
 animate(p, fps = 1)
 
-
-## title = 'Risk Factor: {measure_id}', 
-
-## add title
-## facet by stroke (remove stroke and chd)
-## add title
-## slow down
-## make points more transparent
-## change order
+```
 
 
 
