@@ -172,14 +172,9 @@ We then installed the package required for animation
 devtools::install_github('thomasp85/gganimate')
 ```
 
-<<<<<<< HEAD
 We then created an animated scatterplot with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis
-```{r}
-=======
-We then created an animated scatterplot with Coronary Heart DIsease prevalence on the X-axis and different risk factors on the Y-axis
 
 ```{r, warning=FALSE}
->>>>>>> 9ac937e661f524edfc4c0df606ec43159529dd5a
 theme_set(theme_bw())  # pre-set the bw theme.
 
 
