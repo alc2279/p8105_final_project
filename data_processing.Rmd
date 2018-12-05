@@ -93,7 +93,8 @@ nyc_cvrisk =
          ##year == 2016,
          measure_id %in% c("ACCESS2", "BINGE", "BPHIGH", "BPMED", "OBESITY", "CHECKUP", 
                          "CHOLSCREEN", "CSMOKING", "DIABETES", "HIGHCHOL", "KIDNEY", 
-                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>% 
+                         "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>%
+  droplevels() %>% 
  select(unique_id, population_count, measure_id, data_value, short_question_text)
 
 
@@ -361,14 +362,15 @@ install.ImageMagick()
 
 ## create table for animation
 nyc_cvrisk_limited = nyc_cvrisk %>% 
-  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication"))
+  filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication")) %>% droplevels()
 
 <<<<<<< HEAD
 nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id") %>% 
   rename("Population" = population_count, "Risk Factor" = short_question_text)
 =======
 nyc_cad = nyc_cvrisk %>% 
-  filter(short_question_text == "Coronary Heart Disease")
+  filter(short_question_text == "Coronary Heart Disease") %>% 
+  droplevels()
 >>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
 
 nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
