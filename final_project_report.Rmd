@@ -12,6 +12,8 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(corrplot)
+
 ```
 
 #Motivation
@@ -169,8 +171,6 @@ animate(p, fps = 1)
 To make the correlation plot, we first transformed our dataset in the wide format and called it `nyc_cvrisk_wide`.
 
 ```{r}
-library(corrplot)
-
 nyc_cvrisk_wide = 
   nyc_cvrisk %>% 
   select(-measure_id)%>%
@@ -185,6 +185,18 @@ The correlation plot for coronary heart disease and risk factors of interest is 
 nyc_cvrisk_wide %>% 
   select(annual_checkup:sleep_7_hours) %>% 
   select("coronary_heart_disease", everything())%>%
+  rename("CHD" = coronary_heart_disease,
+         "Annual Checkup" = annual_checkup,
+         "Binge Drinking" = binge_drinking,
+         "Kidney Disease" = chronic_kidney_disease,
+         "Current Smoking" = current_smoking,
+         "Diabetes" = diabetes,
+         "No Insurance" = health_insurance,
+         "Poor Mental Health" = mental_health,
+         "Obesity" = obesity,
+         "Poor Health" = physical_health,
+         "Physical Inactivity" = physical_inactivity,
+         "Poor Sleep" = sleep_7_hours)%>%
   cor() %>% 
   corrplot(., method="circle")
 
@@ -195,9 +207,21 @@ The correlation plot for stroke and risk factors of interest is as follows:
 ```{r}
 
 nyc_cvrisk_wide %>% 
-  select(annual_checkup:stroke) %>% 
-  select("stroke", everything())%>%
-  select(-coronary_heart_disease)%>%
+  select(annual_checkup:stroke)%>%
+  select(stroke, everything()) %>% 
+  select(-c(coronary_heart_disease))%>%
+  rename("Stroke" = stroke,
+         "Annual Checkup" = annual_checkup,
+         "Binge Drinking" = binge_drinking,
+         "Kidney Disease" = chronic_kidney_disease,
+         "Current Smoking" = current_smoking,
+         "Diabetes" = diabetes,
+         "No Insurance" = health_insurance,
+         "Poor Mental Health" = mental_health,
+         "Obesity" = obesity,
+         "Poor Health" = physical_health,
+         "Physical Inactivity" = physical_inactivity,
+         "Poor Sleep" = sleep_7_hours)%>%
   cor() %>% 
   corrplot(., method="circle")
 ```
