@@ -135,12 +135,13 @@ nyc_cad = nyc_cvrisk %>%
   filter(short_question_text == "Coronary Heart Disease") %>% 
   select(-measure_id, -short_question_text, -population_count)
 
-nyc_cvrisk_joined = inner_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
+nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
 ```
+
 
 We then installed the package required for animation
 ```{r, eval=FALSE}
-devtools::install_github("dgrtwo/gganimate")
+devtools::install_github('thomasp85/gganimate')
 ```
 
 We then created an animated scatterplot with Coronary Heart DIsease prevalence on the X-axis and different risk factors on the Y-axis
@@ -160,7 +161,8 @@ p = nyc_cvrisk_joined %>%
   labs(title = "{closest_state}",
        x = 'Coronary Heart Disease Prevalence', 
        y = 'Risk Factor Prevalence',
-       colour = "Risk Factors") +
+       colour = 'Risk Factors',
+       size = 'Population Count') +
   
   theme(plot.title = element_text(size = 40, face = "bold"),
         axis.text=element_text(size=18),
@@ -168,11 +170,11 @@ p = nyc_cvrisk_joined %>%
   theme(legend.text=element_text(size=16), legend.title=element_text(size=18,face="bold") ) +
   
   # gganimate parts
-  transition_states(risk_factor, transition_length = 1, state_length = 50000, wrap = TRUE) +
+  transition_states(risk_factor, transition_length = 1, state_length = 3, wrap = TRUE) +
   enter_fade() +
   exit_fade()
 
-animate(p, fps = 1, height = 800, width = 800)
+animate(p, fps = 1, height = 600, width = 1000, renderer = gifski_renderer())
 
 ```
 
