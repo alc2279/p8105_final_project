@@ -178,8 +178,8 @@ p = nyc_cvrisk_joined %>%
   xlim(0, 10) +
   
   labs(title = "{closest_state}",
-       x = 'Coronary Heart Disease Prevalence', 
-       y = 'Risk Factor Prevalence',
+       x = 'Coronary Heart Disease Prevalence (%)', 
+       y = 'Risk Factor Prevalence (%)',
        colour = 'Risk Factors',
        size = 'Population Count') +
   
@@ -209,8 +209,8 @@ pp = nyc_cvrisk_joined_stroke %>%
   xlim(0, 10) +
   
   labs(title = "{closest_state}",
-       x = 'Stroke Prevalence', 
-       y = 'Risk Factor Prevalence',
+       x = 'Stroke Prevalence (%)', 
+       y = 'Risk Factor Prevalence (%)',
        colour = 'Risk Factors',
        size = 'Population Count') +
   
