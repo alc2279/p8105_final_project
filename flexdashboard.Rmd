@@ -1,5 +1,5 @@
 ---
-title: "Correlation between Risk Factors and Coronary Disease/Stroke"
+title: "Correlation of Risk Factors with Coronary Disease and Stroke at Census-tract level in New York City"
 output: 
   flexdashboard::flex_dashboard:
     orientation: columns
@@ -9,14 +9,15 @@ output:
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(tidyverse)
+library(corrplot)
 ```
 
 Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Chart A
+### Scatterplot for Coronary Artery Disease
 
-```{r, cache=TRUE}
+```{r, warning=FALSE}
 cvrisk_url = "https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD"
 
 cvrisk = 
@@ -62,8 +63,8 @@ p = nyc_cvrisk_joined %>%
   xlim(0, 10) +
   
   labs(title = "{closest_state}",
-       x = 'Coronary Heart Disease Prevalence', 
-       y = 'Risk Factor Prevalence',
+       x = 'Coronary Heart Disease Prevalence (%)', 
+       y = 'Risk Factor Prevalence (%)',
        colour = 'Risk Factors',
        size = 'Population Count') +
   
@@ -77,22 +78,22 @@ p = nyc_cvrisk_joined %>%
   enter_fade() +
   exit_fade()
 
-animate(p, fps = 2, height = 500, width = 500)
+animate(p, fps = 2, width = 800)
 ```
 
 
-### Chart B
+### Correlation plot for Coronary Artery Disease
 
-```{r}
+```{r, warning=FALSE}
 nyc_cvrisk_wide = 
   nyc_cvrisk %>% 
-  select(-measure_id)%>%
+  select(-measure_id) %>%
   spread(key = short_question_text, value = data_value) %>% 
   janitor::clean_names()
 
 nyc_cvrisk_wide %>% 
   select(annual_checkup:sleep_7_hours) %>% 
-  select("coronary_heart_disease", everything())%>%
+  select("coronary_heart_disease", everything()) %>%
   rename("Coronary Disease" = coronary_heart_disease,
          "Annual Checkup" = annual_checkup,
          "Binge Drinking" = binge_drinking,
@@ -106,18 +107,18 @@ nyc_cvrisk_wide %>%
          "Physical Inactivity" = physical_inactivity,
          "Poor Sleep" = sleep_7_hours)%>%
   cor() %>% 
-  corrplot(method = "square", order = "AOE", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
+  corrplot(method = "square", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
          # hide correlation coefficient on the principal diagonal
-         diag=FALSE)
+         diag=FALSE, number.cex = .7)
 ```
 
 
 Column {data-width=500}
 -----------------------------------------------------------------------
 
-### Chart C
+### Scatterplot for Stroke
 
-```{r}
+```{r, warning=FALSE}
 nyc_stroke = nyc_cvrisk %>% 
   filter(short_question_text == "Stroke") %>%
   droplevels() %>% 
@@ -133,8 +134,8 @@ pp = nyc_cvrisk_joined_stroke %>%
   xlim(0, 10) +
   
   labs(title = "{closest_state}",
-       x = 'Stroke Prevalence', 
-       y = 'Risk Factor Prevalence',
+       x = 'Stroke Prevalence (%)', 
+       y = 'Risk Factor Prevalence (%)',
        colour = 'Risk Factors',
        size = 'Population Count') +
   
@@ -148,12 +149,12 @@ pp = nyc_cvrisk_joined_stroke %>%
   enter_fade() +
   exit_fade()
 
-animate(pp, fps = 2, height = 500, width = 500)
+animate(pp, fps = 2, width = 800)
 ```
 
-### Chart D
+### Correlation plot for Stroke
 
-```{r}
+```{r, warning=FALSE}
 nyc_cvrisk_wide %>% 
   select(annual_checkup:stroke)%>%
   select(stroke, everything()) %>% 
@@ -169,10 +170,10 @@ nyc_cvrisk_wide %>%
          "Obesity" = obesity,
          "Poor Health" = physical_health,
          "Physical Inactivity" = physical_inactivity,
-         "Poor Sleep" = sleep_7_hours)%>%
+         "Poor Sleep" = sleep_7_hours) %>%
   cor() %>% 
-  corrplot(method = "square", order = "AOE", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
+  corrplot(method = "square", addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", 
          # hide correlation coefficient on the principal diagonal
-         diag=FALSE)
+         diag=FALSE, number.cex = .7)
 ```
 
