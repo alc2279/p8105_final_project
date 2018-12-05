@@ -11,6 +11,8 @@ navbar:
       href: https://jiyueqin.shinyapps.io/framingham/
     - icon: fa-github fa-lg
       href: https://github.com/alc2279/p8105_final_project
+    - icon: fa-envelope fa-lg
+      href: mailto:<alc2279@cumc.columbia.edu>
 output:
   html_document:
     theme: flatly
