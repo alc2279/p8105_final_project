@@ -5,7 +5,10 @@ library(ggradar)
 library(tidyverse)
 library(plotly)
 
-# Define UI for application that draws a histogram
+#######################################################
+#    Define UI
+#######################################################
+
 ui <- fluidPage(
    
    # Application title
@@ -46,15 +49,18 @@ ui <- fluidPage(
         tabsetPanel(
           tabPanel("Result",
                   br(),
-                  h3('risk points in each term'),
-##########################
-                    plotlyOutput("RiskRadarPlot"),
-              
+                  h3('Risk scale in each term'),
+                  plotlyOutput("RiskRadarPlot"),
                   h3('Risk points:'),
                   textOutput('PointsOutput'),
                   br(),
                   h3('10-year risk:'),
-                  textOutput('RiskOutput')
+                  textOutput('RiskOutput'),
+                  br()
+          ),
+          tabPanel("Summary",
+                   br(),
+                   tableOutput("view")
           ),
           tabPanel("Relevant information", 
                    br(),
@@ -76,18 +82,27 @@ ui <- fluidPage(
 # function1: convert single points into results
 ######################################################################
 
-points_to_results = function(hdl_points, chol_points, 
+points_to_results = function(gender, hdl_points, chol_points, 
                              smoke_points, age_points, sbp_points){
+  if (gender == "Male"){
+    min_vec = c(-1, 0, 0, -9, 0)
+    max_vec = c(2, 11, 8, 13, 3)
+  }else{
+    min_vec = c(-1, 0, 0, -7, 0)
+    max_vec = c(2, 13, 9, 16, 6)
+  }
   points_df = tibble(hdl_points, chol_points, 
                      smoke_points, age_points, sbp_points) %>% 
     gather(key = term, value = points, hdl_points:sbp_points) %>% 
-    mutate(min = c(-1, 0, 0, -9, 0),
-           max = c(2, 11, 8, 13, 3),
+    mutate(min = min_vec,
+           max = max_vec,
            range = max - min, 
            scale = round(100*(points-min)/range, 0))
   
   total_points = sum(hdl_points, age_points, chol_points, 
                      smoke_points, age_points, sbp_points)
+  return(list(points_df = points_df,
+              total_points = total_points))
 }
 
 ######################################################################
@@ -182,7 +197,7 @@ men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
   }
  
   
-  points_to_results(hdl_points, chol_points, 
+  points_to_results("Male", hdl_points, chol_points, 
                     smoke_points, age_points, sbp_points)
                 
 }
@@ -271,7 +286,7 @@ women_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
     else if(SBP < 130) sbp_points = points + 3
     else if(SBP < 140) sbp_points = points + 4
     else if(SBP < 160) sbp_points = points + 5
-    else points = sbp_points + 6
+    else sbp_points = points + 6
   } else if(treated == 'No')
   {
     if(SBP < 120) sbp_points = points
@@ -281,7 +296,7 @@ women_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
     else sbp_points = points + 4
   }
   
-  points_to_results(hdl_points, chol_points, 
+  points_to_results("Female", hdl_points, chol_points, 
                     smoke_points, age_points, sbp_points)
   
 }
@@ -311,14 +326,14 @@ radar_plotly = function(points_df){
 }
 
 #######################################################################
-# function 4: calculate risk
+# function 5: calculate risk
 #######################################################################
 
 cal_risk <- function(points, gender){
 
  if(gender == "Male") 
  {
-  if(points <= 0) risk = '< 1%'
+  if(points <= 0) risk = 'Less than 1%'
   else if(points >= 1 & points <= 4) risk = '1%'
   else if(points >= 5 & points <= 6) risk = '2%'
   else if(points == 7) risk = '3%'
@@ -362,7 +377,9 @@ cal_risk <- function(points, gender){
   }
   
 }
-
+####################################################################
+# define server
+####################################################################
 server <- function(input, output) {
    
    age <- reactive({input$AgeSlider})
@@ -377,20 +394,29 @@ server <- function(input, output) {
 It is one of a number of scoring systems used to determine an individual's chances of developing cardiovascular disease."})
    
    output$RiskRadarPlot <- renderPlotly({
-   ########################
-   radar_plotly(new_men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$points_df)
+     if(sex() == 'Male')
+     {
+       men_results = men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+       radar_plotly(men_results$points_df)
+     }
+     else if(sex() == 'Female')
+     {
+       women_results = women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+       radar_plotly(women_results$points_df)
+     }
+
    
 })
-   ###############
+
    output$PointsOutput <- renderPrint({
     
        if(sex() == 'Male')
        {
-         new_men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$total_points
+         men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$total_points
        }
        else if(sex() == 'Female')
        {
-         women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+         women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$total_points
        }
    })
    
@@ -398,12 +424,12 @@ It is one of a number of scoring systems used to determine an individual's chanc
      
      if(sex() == 'Male')
      {
-       points = men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+       points = men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$total_points
        cal_risk(points, "Male")
      }
      else if(sex() == 'Female')
      {
-       points = women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+       points = women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())$total_points
        cal_risk(points, "Female")
      }
    })
@@ -412,6 +438,29 @@ It is one of a number of scoring systems used to determine an individual's chanc
    url2 <- a("what is cardiovascular disease", href="http://www.heart.org/en/health-topics/consumer-healthcare/what-is-cardiovascular-disease")
    output$tab <- renderUI({
      tagList(url, br(), url2)
+   })
+   
+   output$view <- renderTable({
+     if(sex() == 'Male')
+     {
+       result = men_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+       result$points_df %>% 
+         mutate(term = c('HDL cholesterol','Total cholesterol','Smoking','Age','SBP'),
+                input = c(HDLChol(), total_chol(), smoker(), age(), SBP()),
+                scale = paste(as.character(scale), '%', '')) %>% 
+         select(term, risk_points = points, risk_scale = scale) 
+         
+     }
+     else if(sex() == 'Female')
+     {
+       result = women_points(age(), total_chol(), smoker(), HDLChol(), treated(), SBP())
+       result$points_df %>% 
+         mutate(term = c('HDL cholesterol','Total cholesterol','Smoking','Age','SBP'),
+                input = c(HDLChol(), total_chol(), smoker(), age(), SBP()),
+                scale = paste(as.character(scale), '%', ''),
+                risk_points = as.integer(points)) %>% 
+         select(term, input, risk_points, risk_scale = scale) 
+     }
    })
 }
 
