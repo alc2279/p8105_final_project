@@ -1,7 +1,0 @@
----
-title: "The Heart Project"
----
-
-### This is our final project website!
-
-This is where we'll put our screencast + some of our report information
