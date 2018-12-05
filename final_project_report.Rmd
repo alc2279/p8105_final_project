@@ -103,7 +103,7 @@ In order to predict risk for heart disease for an individual, we utilized the [F
 
 We scraped the data directly from the web as seen in the code below and called it `cvrisk`.
 
-```{r cache = TRUE}
+```{r, eval=FALSE}
 cvrisk_url = "https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD"
 
 ## Read in data from github
@@ -113,9 +113,9 @@ cvrisk =
   as_tibble()
 ```
 
-We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database `nyc_cvrisk`.
+We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database `nyc_cvrisk`. We then exported this to a csv in our repository so that we can read in the limited dataset for future use to improve efficiency.
 
-```{r cache = TRUE}
+```{r, eval=FALSE}
 nyc_cvrisk = 
   cvrisk %>% 
   filter(state_desc == "New York", city_name == "New York",
@@ -127,7 +127,17 @@ nyc_cvrisk =
                          "LPA", "MHLTH", "PHLTH", "SLEEP", "CHD", "STROKE")) %>%
   droplevels() %>% 
   select(unique_id, population_count, measure_id, data_value, short_question_text)
+
+##Write csv in R
+write.csv(nyc_cvrisk, file = "data/nyc_cvrisk.csv", row.names=FALSE)
 ```
+
+###Reading in the NYC data file
+
+```{r, message=FALSE, warning=FALSE}
+nyc_cvrisk = read_csv(file = "./data/nyc_cvrisk.csv")
+```
+
 
 ###Making the animated scatterplot for coronary artery disease
 
