@@ -66,101 +66,35 @@ ui <- fluidPage(
    )
 )
 
-# Define server logic required to draw a histogram
 
-## calculate points in man
-men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
-{
-  points = 0
+######################################################################
+# Define server logic
+######################################################################
+
+
+######################################################################
+# function1: convert single points into results
+######################################################################
+
+points_to_results = function(hdl_points, chol_points, 
+                             smoke_points, age_points, sbp_points){
+  points_df = tibble(hdl_points, chol_points, 
+                     smoke_points, age_points, sbp_points) %>% 
+    gather(key = term, value = points, hdl_points:sbp_points) %>% 
+    mutate(min = c(-1, 0, 0, -9, 0),
+           max = c(2, 11, 8, 13, 3),
+           range = max - min, 
+           scale = round(100*(points-min)/range, 0))
   
-  # Age points
-  if(age < 35) points = points - 9
-  else if(age < 40) points = points - 4
-  else if(age < 45) points = points
-  else if(age < 50) points = point + 3
-  else if(age < 55) points = points + 6
-  else if(age < 60) points = points + 8
-  else if(age < 65) points = points + 10
-  else if(age < 70) points = points + 11
-  else if(age < 75) points = points + 12
-  else if(age < 80) points = points + 13
-  
-  # Total cholesterol points
-  if(age > 19 & age < 40)
-  {
-    # Age 20–39 years
-    if(total_chol < 160) points = points
-    else if (total_chol < 200 ) points = points + 4
-    else if(total_chol < 240) points = points + 7
-    else if(total_chol < 280) points = points + 9
-    else points = points + 11
-  } else if(age > 39 & age < 50)
-  {
-    # Age 40–49 years
-    if(total_chol < 160) points = points
-    else if(total_chol < 200) points = points + 3
-    else if(total_chol < 240) points = points + 5
-    else if(total_chol < 280) points = points + 6
-    else points = points + 8
-  } else if(age > 49 & age < 60)
-  {
-    # Age 50–59 years
-    if(total_chol < 160) points = points
-    else if(total_chol < 200) points = points + 2
-    else if(total_chol < 240) points = points + 3
-    else if(total_chol < 280) points = points + 4
-    else points = points + 5
-  } else if(age > 59 & age < 70)
-  {
-    # Age 60–69 years
-    if(total_chol < 160) points = points
-    else if (total_chol < 200)points = points + 1
-    else if(total_chol < 240) points = points + 1
-    else if(total_chol < 280) points = points + 2
-    else points = points + 3
-  } else 
-  {
-    # Age 70–79 years
-    if(total_chol > 240) points = points + 1
-  } 
-  
-  # Cigarette smoker points
-  if(smoker == "Smoker")
-  {
-    if(age > 19 & age < 40) points = points + 8
-    else if(age < 50) points = points + 5
-    else if(age < 60) points = points + 3
-    else if(age < 70) points = points + 1
-    else points = points + 1
-  }
-  
-  # HDL cholesterol points
-  if(HDL_chol > 59) points = points - 1
-  else if(HDL_chol > 49) points = points
-  else if(HDL_chol > 39) points = points + 1
-  else points = points + 2
-  
-  # Systolic blood pressure points
-  if(treated == 'Yes')
-  {
-    if(SBP < 120) points = points
-    else if(SBP < 130) points = points + 1
-    else if(SBP < 140) points = points + 2
-    else if(SBP < 160) points = points + 2
-    else points = points + 3
-  } else if(treated == 'No')
-  {
-    if(SBP < 130) points = points
-    else if(SBP < 140) points = points + 1
-    else if(SBP < 160) points = points + 1
-    else points = points + 2
-  }
-  
-  return(points)
+  total_points = sum(hdl_points, age_points, chol_points, 
+                     smoke_points, age_points, sbp_points)
 }
-## points in each term
-out = new_men_points(30, 160, "Smoker", 60, "Yes", 180)
-new_men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
+
+######################################################################
+# function2: calculate points results in man
+######################################################################
+
+men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
 {
   points = 0
   
@@ -248,21 +182,115 @@ new_men_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
   }
  
   
-   points_df = tibble(hdl_points, chol_points, 
-                     smoke_points, age_points, sbp_points) %>% 
-     gather(key = term, value = points, hdl_points:sbp_points) %>% 
-     mutate(min = c(-1, 0, 0, -9, 0),
-            max = c(2, 11, 8, 13, 3),
-            range = max - min, 
-            scale = round(100*(points-min)/range, 0))
-   
-   total_points = sum(hdl_points, age_points, chol_points, 
-                      smoke_points, age_points, sbp_points)
-  
-   return(list(points_df = points_df, total_points = total_points))
+  points_to_results(hdl_points, chol_points, 
+                    smoke_points, age_points, sbp_points)
                 
 }
-#####################################
+
+
+######################################################################
+# function3: calculate points results in woman
+######################################################################
+
+women_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
+{
+  points = 0
+  
+  # Age points
+  if(age < 35) age_points = points - 7
+  else if(age < 40) age_points = points - 3
+  else if(age < 45) age_points = points
+  else if(age < 50) age_points = points + 3
+  else if(age < 55) age_points = points + 6
+  else if(age < 60) age_points = points + 8
+  else if(age < 65) age_points = points + 10
+  else if(age < 70) age_points = points + 12
+  else if(age < 75) age_points = points + 14
+  else if(age < 80) age_points = points + 16
+  
+  # Total cholesterol points
+  if(age > 19 & age < 40)
+  {
+    # Age 20–39 years
+    if(total_chol < 160) chol_points = points
+    else if (total_chol < 200 ) chol_points = points + 4
+    else if(total_chol < 240) chol_points = points + 8
+    else if(total_chol < 280) chol_points = points + 11
+    else chol_points = points + 13
+  } else if(age > 39 & age < 50)
+  {
+    # Age 40–49 years
+    if(total_chol < 160) chol_points = points
+    else if(total_chol < 200) chol_points = points + 3
+    else if(total_chol < 240) chol_points = points + 6
+    else if(total_chol < 280) chol_points = points + 8
+    else chol_points = points + 10
+  } else if(age > 49 & age < 60)
+  {
+    # Age 50–59 years
+    if(total_chol < 160) chol_points = points
+    else if(total_chol < 200) chol_points = points + 2
+    else if(total_chol < 240) chol_points = points + 4
+    else if(total_chol < 280) chol_points = points + 5
+    else chol_points = points + 7
+  } else if(age > 59 & age < 70)
+  {
+    # Age 60–69 years
+    if(total_chol < 160) chol_points = points
+    else if(total_chol < 200) chol_points = points + 1
+    else if(total_chol < 240) chol_points = points + 2
+    else if(total_chol < 280) chol_points = points + 3
+    else chol_points = points + 4
+  } else 
+  {
+    # Age 70–79 years
+    if(total_chol > 239) chol_points = points + 2
+    else if(total_chol > 159) chol_points = points + 1
+  } 
+  
+  # Cigarette smoker points
+  if(smoker == "Smoker")
+  {
+    if(age > 19 & age < 40) smoke_points = points + 9
+    else if(age < 50) smoke_points = points + 7
+    else if(age < 60) smoke_points = points + 4
+    else if(age < 70) smoke_points = points + 2
+    else smoke_points = points + 1
+  }else smoke_points = 0
+  
+  # HDL cholesterol points
+  if(HDL_chol > 59) hdl_points = points - 1
+  else if(HDL_chol > 49) hdl_points = points
+  else if(HDL_chol > 39) hdl_points = points + 1
+  else hdl_points = points + 2
+  
+  # Systolic blood pressure points
+  if(treated == 'Yes')
+  {
+    if(SBP < 120) sbp_points = points
+    else if(SBP < 130) sbp_points = points + 3
+    else if(SBP < 140) sbp_points = points + 4
+    else if(SBP < 160) sbp_points = points + 5
+    else points = sbp_points + 6
+  } else if(treated == 'No')
+  {
+    if(SBP < 120) sbp_points = points
+    else if(SBP < 130) sbp_points = points + 1
+    else if(SBP < 140) sbp_points = points + 2
+    else if(SBP < 160) sbp_points = points + 3
+    else sbp_points = points + 4
+  }
+  
+  points_to_results(hdl_points, chol_points, 
+                    smoke_points, age_points, sbp_points)
+  
+}
+
+
+##########################################################################
+# function4: radar plot
+##########################################################################
+
 radar_plotly = function(points_df){
   scale = append(points_df$scale, points_df$scale[1])
   plot_ly(
@@ -281,101 +309,11 @@ radar_plotly = function(points_df){
       showlegend = F
     )
 }
-#################################################
-## calculate points in women
-women_points <- function(age, total_chol, smoker, HDL_chol, treated, SBP)
-{
-  points = 0
-  
-  # Age points
-  if(age < 35) points = points - 7
-  else if(age < 40) points = points - 3
-  else if(age < 45) points = points
-  else if(age < 50) points = points + 3
-  else if(age < 55) points = points + 6
-  else if(age < 60) points = points + 8
-  else if(age < 65) points = points + 10
-  else if(age < 70) points = points + 12
-  else if(age < 75) points = points + 14
-  else if(age < 80) points = points + 16
-  
-  # Total cholesterol points
-  if(age > 19 & age < 40)
-  {
-    # Age 20–39 years
-    if(total_chol < 160) points = points
-    else if (total_chol < 200 ) points = points + 4
-    else if(total_chol < 240) points = points + 8
-    else if(total_chol < 280) points = points + 11
-    else points = points + 13
-  } else if(age > 39 & age < 50)
-  {
-    # Age 40–49 years
-    if(total_chol < 160) points = points
-    else if(total_chol < 200) points = points + 3
-    else if(total_chol < 240) points = points + 6
-    else if(total_chol < 280) points = points + 8
-    else points = points + 10
-  } else if(age > 49 & age < 60)
-  {
-    # Age 50–59 years
-    if(total_chol < 160) points = points
-    else if(total_chol < 200) points = points + 2
-    else if(total_chol < 240) points = points + 4
-    else if(total_chol < 280) points = points + 5
-    else points = points + 7
-  } else if(age > 59 & age < 70)
-  {
-    # Age 60–69 years
-    if(total_chol < 160) points = points
-    else if (total_chol < 200)points = points + 1
-    else if(total_chol < 240) points = points + 2
-    else if(total_chol < 280) points = points + 3
-    else points = points + 4
-  } else 
-  {
-    # Age 70–79 years
-    if(total_chol > 239) points = points + 2
-    else if(total_chol > 159) points = points + 1
-  } 
-  
-  # Cigarette smoker points
-  if(smoker == "Smoker")
-  {
-    if(age > 19 & age < 40) points = points + 9
-    else if(age < 50) points = points + 7
-    else if(age < 60) points = points + 4
-    else if(age < 70) points = points + 2
-    else points = points + 1
-  }
-  
-  # HDL cholesterol points
-  if(HDL_chol > 59) points = points - 1
-  else if(HDL_chol > 49) points = points
-  else if(HDL_chol > 39) points = points + 1
-  else points = points + 2
-  
-  # Systolic blood pressure points
-  if(treated == 'Yes')
-  {
-    if(SBP < 120) points = points
-    else if(SBP < 130) points = points + 3
-    else if(SBP < 140) points = points + 4
-    else if(SBP < 160) points = points + 5
-    else points = points + 6
-  } else if(treated == 'No')
-  {
-    if(SBP < 120) points = points
-    else if(SBP < 130) points = points + 1
-    else if(SBP < 140) points = points + 2
-    else if(SBP < 160) points = points + 3
-    else points = points + 4
-  }
-  
-  return(points)
-}
 
-## calculate risk
+#######################################################################
+# function 4: calculate risk
+#######################################################################
+
 cal_risk <- function(points, gender){
 
  if(gender == "Male") 
