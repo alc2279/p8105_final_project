@@ -34,7 +34,7 @@ Majority of Americans are already suffering from heart disease. The prevalence o
 
 ####*And…*
 
-*About 90% of the risk for the first heart attack is because of conditions or lifestyle factors that are preventable*
+*About 90% of the risk for the first heart attack is because of conditions or lifestyle factors that are preventable.*
 
 ![Lifestyle risk factors](pictures/lifestyle.png)
 
@@ -113,7 +113,7 @@ cvrisk =
   as_tibble()
 ```
 
-We then restricted our database to New York City and included only the variables that were useful for further data visualization. We called this database `nyc_cvrisk`.
+We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database `nyc_cvrisk`.
 
 ```{r cache = TRUE}
 nyc_cvrisk = 
