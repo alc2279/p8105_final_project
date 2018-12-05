@@ -18,4 +18,6 @@ We utilized the [500 Cities: Local Data for Better Health](https://catalog.data.
 
 For a detailed explanation of our findings and conclusions, read our Project Report [here](final_project_report.html)
 
+###Can embed screencast here
+
 <h3>Contributors: Annie Clark | Jiyue Qin | Margaret Gacheru | Aakriti Gupta </h3>
