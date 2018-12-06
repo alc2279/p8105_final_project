@@ -103,7 +103,7 @@ In order to predict risk for heart disease for an individual, we utilized the [F
 
 We scraped the data directly from the web as seen in the code below and called it `cvrisk`.
 
-```{r, eval=FALSE}
+```{r, cache = TRUE}
 
 cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
     janitor::clean_names() 
@@ -114,7 +114,7 @@ We then restricted our database to census tract -level data in New York City and
 
 There were 591 missing values in the dataset, which corresponded to observations that had population counts less than 50. For this reason, we did include these datapoints in our analysis and removed them while tidying. 
 
-```{r, eval=FALSE}
+```{r}
 nyc_cvrisk = 
   cvrisk %>% 
   filter(state_desc == "New York", city_name == "New York",
@@ -147,17 +147,9 @@ nyc_cvrisk %>%
 ```
 
 
-
-###Reading in the NYC data file
-
-```{r, message=FALSE, warning=FALSE}
-nyc_cvrisk = read_csv(file = "./data/nyc_cvrisk.csv")
-```
-
-
 ###Making the animated scatterplot for coronary artery disease
 
-We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset.
+We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset. We created another similar dataset for stroke.
 
 ```{r}
 nyc_cvrisk_limited = nyc_cvrisk %>% 
