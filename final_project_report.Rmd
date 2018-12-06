@@ -219,7 +219,7 @@ p = nyc_cvrisk_joined %>%
   enter_fade() +
   exit_fade()
 
-animate(p, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())
+animate(p, fps = 2, height = 600, width = 1000)
 ```
 
 ###Making the animated scatterplot for stroke
@@ -250,7 +250,7 @@ pp = nyc_cvrisk_joined_stroke %>%
   enter_fade() +
   exit_fade()
 
-animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())
+animate(pp, fps = 2, height = 600, width = 1000)
 
 ```
 
@@ -278,6 +278,9 @@ nyc_cvrisk_wide %>%
          "Annual Checkup" = annual_checkup,
          "Binge Drinking" = binge_drinking,
          "Kidney Disease" = chronic_kidney_disease,
+         "High Cholesterol" = high_cholesterol,
+         "Hypertension" = high_blood_pressure,
+         "Cholesterol Screening" = cholesterol_screening,
          "Current Smoking" = current_smoking,
          "Diabetes" = diabetes,
          "No Insurance" = health_insurance,
@@ -307,6 +310,9 @@ nyc_cvrisk_wide %>%
          "Annual Checkup" = annual_checkup,
          "Binge Drinking" = binge_drinking,
          "Kidney Disease" = chronic_kidney_disease,
+         "High Cholesterol" = high_cholesterol,
+         "Hypertension" = high_blood_pressure,
+         "Cholesterol Screening" = cholesterol_screening,
          "Current Smoking" = current_smoking,
          "Diabetes" = diabetes,
          "No Insurance" = health_insurance,
@@ -326,12 +332,14 @@ nyc_cvrisk_wide %>%
 
 We made several salient observations about correlation of risk factors with *Coronary Artery Disease* and *Stroke*.
 
-All of the risk factors (with the execption of binge drinking) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke. 
+All of the risk factors (with the execption of binge drinking and cholesterol screening) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke. 
 
 ###Factors correlated with coronary artery disease
 
 We observed that the following factors were strongly positively correlated with coronary artery disease:
 
+* High Blood Pressure - r = 0.7
+* High Cholesterol - r = 0.9
 * Chronic Kidney Disease - r = 0.85
 * Diabetes - r = 0.71
 * Poor Physical Health - r = 0.7
@@ -347,6 +355,8 @@ We observed that the following factors were strongly negatively correlated with 
 
 We observed that the following factors were strongly positively correlated with coronary artery disease:
 
+* High Blood Pressure - r = 0.9
+* High Cholesterol - r = 0.7
 * Chronic Kidney Disease - r = 0.97
 * Diabetes - r = 0.9
 * Poor Physical Health - r = 0.8
@@ -360,6 +370,7 @@ We observed that the following factors were strongly positively correlated with 
 We observed that the following factors were strongly negatively correlated with coronary artery disease:
 
 * Binge Alcohol Drinking - r = -0.7
+* Cholesterol Screening - r = -0.25
 
 
 #Additional Analysis
@@ -375,10 +386,8 @@ We also used `shinyApp` and `plotly` package to build a program to calculate ind
 
 In the process of building this project, we gained several insights about risk factors for heart disease. 
 
-* In particular, the strength of correlation of lifestyle risk factors with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in [this article](http://www.onlinejacc.org/content/accj/69/1/25.full.pdf).
+* In particular, the strength of correlation of lifestyle risk factors like physical inactivity and smoking with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Moreover, modifiable risk factors like high blood pressure and high cholesterol are strongly associated with heart disease and stroke and cholesterol screening is inversely associated, suggesting the need to spread awareness about these risk factors so that they can be diagnosed and treated early. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in [this article](http://www.onlinejacc.org/content/accj/69/1/25.full.pdf).
 
 * Visualization of geographic variation of these risk factors in outcomes in New York City provide insights into target neighborhoods for implementation of cardiovascular risk reduction policies.
 
 * Visualization of individual risk for heart disease using patient-level inputs, and the ability to understand how modification of one input can impact the risk can be very powerful for people working toward decreasing their risk.
-
-
