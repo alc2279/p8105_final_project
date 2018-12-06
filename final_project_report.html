@@ -343,7 +343,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">The Heart Project</h1>
 <h4 class="author"><em>Annie, Margaret, Jiyue &amp; Aakriti</em></h4>
-<h4 class="date"><em>December 4, 2018</em></h4>
+<h4 class="date"><em>December 6, 2018</em></h4>
 
 </div>
 
@@ -448,7 +448,8 @@ div.tocify {
   droplevels() %&gt;% 
   select(unique_id, population_count, measure_id, data_value, short_question_text)</code></pre>
 <p>The following is a distribution of the prevalences of all of the relevant variables. As you can see the risk factors with highest prevalence involve screening and medication (BPMED, CHECKUP and CHOLSCREEN). The risk factors with the lowest prevlances are diseases (CHD, KIDNEY and STROKE). There is a general trend of higher variance among risk factors with higher prevalences.</p>
-<pre class="r"><code>nyc_cvrisk %&gt;%
+<pre class="r"><code>theme_set(theme_bw())
+nyc_cvrisk %&gt;%
   ggplot(aes(x = measure_id, y = data_value, color = measure_id)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1),
@@ -457,7 +458,7 @@ div.tocify {
       title = &quot;Risk Factor Prevalence in NYC 2015-2016&quot;,
       x = &quot;Risk Factor&quot;,
       y = &quot;Prevalence (%)&quot;,
-      caption = &quot;Data from the BRFSS SMART 2010&quot;
+      caption = &quot;Data from the CDC&quot;
     ) + 
     viridis::scale_color_viridis(
       discrete = TRUE

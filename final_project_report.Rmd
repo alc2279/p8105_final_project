@@ -1,7 +1,7 @@
 ---
 title: "The Heart Project"
 author: "Annie, Margaret, Jiyue & Aakriti"
-date: "December 4, 2018"
+date: "December 6, 2018"
 output: 
   html_document:
     toc: TRUE
@@ -132,6 +132,7 @@ nyc_cvrisk =
 The following is a distribution of the prevalences of all of the relevant variables. As you can see the risk factors with highest prevalence involve screening and medication (BPMED, CHECKUP and CHOLSCREEN). The risk factors with the lowest prevlances are diseases (CHD, KIDNEY and STROKE). There is a general trend of higher variance among risk factors with higher prevalences.
 
 ```{r}
+theme_set(theme_bw())
 nyc_cvrisk %>%
   ggplot(aes(x = measure_id, y = data_value, color = measure_id)) + 
   geom_boxplot() +
@@ -141,7 +142,7 @@ nyc_cvrisk %>%
       title = "Risk Factor Prevalence in NYC 2015-2016",
       x = "Risk Factor",
       y = "Prevalence (%)",
-      caption = "Data from the BRFSS SMART 2010"
+      caption = "Data from the CDC"
     ) + 
     viridis::scale_color_viridis(
       discrete = TRUE
