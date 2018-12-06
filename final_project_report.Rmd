@@ -9,9 +9,10 @@ output:
     code_folding: hide
 ---
 
-```{r setup, include=FALSE}
+```{r setup, message = FALSE, results = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 source("check_packages_report.R")
+theme_set(theme_bw())
 ```
 
 # Motivation
@@ -70,7 +71,7 @@ In order to address the first two questions, we utilized the [500 Cities: Local 
 
 The data can also be downloaded on [Google Drive](https://drive.google.com/drive/folders/1U_8orguSxdIiNpxj_6sx8rav6ubqmmrq)
 
-Risk factors that we're interested in:: (15 total)
+Risk factors that we're interested in: (15 total)
 
 * ACCESS2: Current lack of health insurance among adults aged 18-64 Years
 * BINGE: Binge drinking among adults aged >=18 Year
@@ -89,7 +90,7 @@ Risk factors that we're interested in:: (15 total)
 * SLEEP: Sleeping less than 7 hours among adults aged >=18 Years
 
 
-Outcomes that we're interested in:: (2 total)
+Outcomes that we're interested in: (2 total)
 
 * CHD: Coronary heart disease among adults aged >=18 Years
 * STROKE: Stroke among adults aged >=18 Years
@@ -104,8 +105,7 @@ In order to predict risk for heart disease for an individual, we utilized the [F
 We scraped the data directly from the web as seen in the code below and called it `cvrisk`.
 
 
-```{r, cache = TRUE, warning = FALSE, message = FALSE}
-
+```{r load, cache = TRUE, warning = FALSE, message = FALSE}
 
 cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
     janitor::clean_names() 
@@ -116,7 +116,7 @@ We then restricted our database to census tract -level data in New York City and
 
 There were 591 missing values in the dataset, which corresponded to observations that had population counts less than 50. For this reason, we did include these datapoints in our analysis and removed them while tidying. 
 
-```{r}
+```{r tidy}
 nyc_cvrisk = 
   cvrisk %>% 
   filter(state_desc == "New York", city_name == "New York",
@@ -131,9 +131,10 @@ nyc_cvrisk =
 
 The following is a distribution of the prevalences of all of the relevant variables. As you can see the risk factors with highest prevalence involve screening and medication (BPMED, CHECKUP and CHOLSCREEN). The risk factors with the lowest prevlances are diseases (CHD, KIDNEY and STROKE). There is a general trend of higher variance among risk factors with higher prevalences.
 
-```{r}
-theme_set(theme_bw())
+```{r boxplot}
+
 nyc_cvrisk %>%
+  mutate(measure_id = forcats::fct_reorder(measure_id, data_value)) %>% 
   ggplot(aes(x = measure_id, y = data_value, color = measure_id)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1),
@@ -144,9 +145,7 @@ nyc_cvrisk %>%
       y = "Prevalence (%)",
       caption = "Data from the CDC"
     ) + 
-    viridis::scale_color_viridis(
-      discrete = TRUE
-    )
+    viridis::scale_color_viridis(discrete = TRUE)
 ```
 
 
@@ -154,7 +153,7 @@ nyc_cvrisk %>%
 
 We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset. We created another similar dataset for stroke.
 
-```{r}
+```{r prep}
 nyc_cvrisk_limited = nyc_cvrisk %>% 
   filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening",
                                     "Chronic Kidney Disease", "Current Smoking", "Diabetes", 
@@ -183,12 +182,12 @@ nyc_cvrisk_joined_stroke = left_join(nyc_cvrisk_limited, nyc_stroke, by = "uniqu
 
 We then created an animated scatterplot using `gganimate` with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis
 
-```{r, warning=FALSE}
-theme_set(theme_bw())  # pre-set the bw theme.
+```{r animate, warning=FALSE}
 
 ## using transition_length and state_length
 library(ggplot2)
 library(gganimate)
+
 p = nyc_cvrisk_joined %>%  
   ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
   geom_point(aes(size = population_count, colour = risk_factor ),
@@ -218,8 +217,8 @@ animate(p, fps = 2, height = 600, width = 1000)
 
 We created a similar animation for stroke, the code for which is shown here.
 
-```{r, warning = FALSE}
-theme_set(theme_bw())  # pre-set the bw theme.
+```{r stroke, warning = FALSE}
+
 pp = nyc_cvrisk_joined_stroke %>%  
   ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
   geom_point(aes(size = population_count, colour = risk_factor ),
@@ -251,7 +250,7 @@ animate(pp, fps = 2, height = 600, width = 1000)
 
 To make the correlation plot, we first transformed our dataset in the wide format and called it `nyc_cvrisk_wide`.
 
-```{r}
+```{r corr}
 nyc_cvrisk_wide = 
   nyc_cvrisk %>% 
   select(-measure_id)%>%
@@ -261,7 +260,7 @@ nyc_cvrisk_wide =
 
 The correlation plot for coronary heart disease and risk factors of interest is as follows:
 
-```{r}
+```{r corr_plot}
 
 nyc_cvrisk_wide %>% 
   select(annual_checkup:sleep_7_hours) %>% 
@@ -293,7 +292,7 @@ nyc_cvrisk_wide %>%
 
 The correlation plot for stroke and risk factors of interest is as follows:
 
-```{r}
+```{r corr_stroke}
 nyc_cvrisk_wide %>% 
   select(annual_checkup:stroke)%>%
   select(stroke, everything()) %>% 

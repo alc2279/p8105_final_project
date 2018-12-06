@@ -8,7 +8,7 @@ check_packages = function(names){
   }
 }
 # Checks to see if required packages are already installed.
-check_packages(c("ggplot2","tidyverse", "corrplot"))  #check these packages
+check_packages(c("ggplot2","tidyverse", "corrplot", "viridis", "forcats"))  #check these packages
 
 
 # install git packages: gganimate

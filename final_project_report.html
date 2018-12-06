@@ -349,6 +349,9 @@ div.tocify {
 </div>
 
 
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+source(&quot;check_packages_report.R&quot;)
+theme_set(theme_bw())</code></pre>
 <div id="motivation" class="section level1">
 <h1>Motivation</h1>
 <div id="some-facts-about-heart-disease" class="section level3">
@@ -405,7 +408,7 @@ div.tocify {
 <h1>Data</h1>
 <p>In order to address the first two questions, we utilized the <a href="https://catalog.data.gov/dataset/500-cities-local-data-for-better-health-b32fd">500 Cities: Local Data for Better Health</a> dataset. The 500 Cities project is a collaboration between CDC, the Robert Wood Johnson Foundation, and the CDC Foundation. The purpose of the 500 Cities Project is to provide city- and census tract-level small area estimates for chronic disease risk factors, health outcomes, and clinical preventive service use for the largest 500 cities in the United States. These small area estimates will allow cities and local health departments to better understand the burden and geographic distribution of health-related variables in their jurisdictions, and assist them in planning public health interventions. Since we were interested in visualizing these data only for New York city, we filtered the dataset to include data only from New York city.</p>
 <p>The data can also be downloaded on <a href="https://drive.google.com/drive/folders/1U_8orguSxdIiNpxj_6sx8rav6ubqmmrq">Google Drive</a></p>
-<p>Risk factors that we’re interested in:: (15 total)</p>
+<p>Risk factors that we’re interested in: (15 total)</p>
 <ul>
 <li>ACCESS2: Current lack of health insurance among adults aged 18-64 Years</li>
 <li>BINGE: Binge drinking among adults aged &gt;=18 Year</li>
@@ -423,7 +426,7 @@ div.tocify {
 <li>PHLTH: Physical health not good for &gt;=14 days among adults aged &gt;=18 Years</li>
 <li>SLEEP: Sleeping less than 7 hours among adults aged &gt;=18 Years</li>
 </ul>
-<p>Outcomes that we’re interested in:: (2 total)</p>
+<p>Outcomes that we’re interested in: (2 total)</p>
 <ul>
 <li>CHD: Coronary heart disease among adults aged &gt;=18 Years</li>
 <li>STROKE: Stroke among adults aged &gt;=18 Years</li>
@@ -450,8 +453,8 @@ div.tocify {
   droplevels() %&gt;% 
   select(unique_id, population_count, measure_id, data_value, short_question_text)</code></pre>
 <p>The following is a distribution of the prevalences of all of the relevant variables. As you can see the risk factors with highest prevalence involve screening and medication (BPMED, CHECKUP and CHOLSCREEN). The risk factors with the lowest prevlances are diseases (CHD, KIDNEY and STROKE). There is a general trend of higher variance among risk factors with higher prevalences.</p>
-<pre class="r"><code>theme_set(theme_bw())
-nyc_cvrisk %&gt;%
+<pre class="r"><code>nyc_cvrisk %&gt;%
+  mutate(measure_id = forcats::fct_reorder(measure_id, data_value)) %&gt;% 
   ggplot(aes(x = measure_id, y = data_value, color = measure_id)) + 
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1),
@@ -462,10 +465,8 @@ nyc_cvrisk %&gt;%
       y = &quot;Prevalence (%)&quot;,
       caption = &quot;Data from the CDC&quot;
     ) + 
-    viridis::scale_color_viridis(
-      discrete = TRUE
-    )</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+    viridis::scale_color_viridis(discrete = TRUE)</code></pre>
+<p><img src="final_project_report_files/figure-html/boxplot-1.png" width="672" /></p>
 </div>
 <div id="making-the-animated-scatterplot-for-coronary-artery-disease" class="section level3">
 <h3>Making the animated scatterplot for coronary artery disease</h3>
@@ -494,11 +495,10 @@ nyc_stroke = nyc_cvrisk %&gt;%
 nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = &quot;unique_id&quot;)
 nyc_cvrisk_joined_stroke = left_join(nyc_cvrisk_limited, nyc_stroke, by = &quot;unique_id&quot;)</code></pre>
 <p>We then created an animated scatterplot using <code>gganimate</code> with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis</p>
-<pre class="r"><code>theme_set(theme_bw())  # pre-set the bw theme.
-
-## using transition_length and state_length
+<pre class="r"><code>## using transition_length and state_length
 library(ggplot2)
 library(gganimate)
+
 p = nyc_cvrisk_joined %&gt;%  
   ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
   geom_point(aes(size = population_count, colour = risk_factor ),
@@ -522,13 +522,12 @@ p = nyc_cvrisk_joined %&gt;%
   exit_fade()
 
 animate(p, fps = 2, height = 600, width = 1000)</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-5-1.gif" /><!-- --></p>
+<p><img src="final_project_report_files/figure-html/animate-1.gif" /><!-- --></p>
 </div>
 <div id="making-the-animated-scatterplot-for-stroke" class="section level3">
 <h3>Making the animated scatterplot for stroke</h3>
 <p>We created a similar animation for stroke, the code for which is shown here.</p>
-<pre class="r"><code>theme_set(theme_bw())  # pre-set the bw theme.
-pp = nyc_cvrisk_joined_stroke %&gt;%  
+<pre class="r"><code>pp = nyc_cvrisk_joined_stroke %&gt;%  
   ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
   geom_point(aes(size = population_count, colour = risk_factor ),
              alpha = 0.5) + 
@@ -551,7 +550,7 @@ pp = nyc_cvrisk_joined_stroke %&gt;%
   exit_fade()
 
 animate(pp, fps = 2, height = 600, width = 1000)</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-6-1.gif" /><!-- --></p>
+<p><img src="final_project_report_files/figure-html/stroke-1.gif" /><!-- --></p>
 </div>
 <div id="making-the-correlation-plot-for-coronary-artery-disease" class="section level3">
 <h3>Making the correlation plot for coronary artery disease</h3>
@@ -584,7 +583,7 @@ animate(pp, fps = 2, height = 600, width = 1000)</code></pre>
   corrplot(method = &quot;square&quot;, addCoef.col = &quot;black&quot;, tl.col=&quot;black&quot;, tl.srt=45, insig = &quot;blank&quot;, 
          # hide correlation coefficient on the principal diagonal
          diag=FALSE, number.cex = .7)</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="final_project_report_files/figure-html/corr_plot-1.png" width="672" /></p>
 </div>
 <div id="making-the-correlation-plot-for-stroke" class="section level3">
 <h3>Making the correlation plot for stroke</h3>
@@ -612,7 +611,7 @@ animate(pp, fps = 2, height = 600, width = 1000)</code></pre>
   corrplot(method = &quot;square&quot;, addCoef.col = &quot;black&quot;, tl.col=&quot;black&quot;, tl.srt=45, insig = &quot;blank&quot;, 
          # hide correlation coefficient on the principal diagonal
          diag=FALSE, number.cex = .7)</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="final_project_report_files/figure-html/corr_stroke-1.png" width="672" /></p>
 </div>
 </div>
 <div id="findings" class="section level1">
