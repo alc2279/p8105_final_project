@@ -332,7 +332,7 @@ nyc_cvrisk_wide %>%
 
 We made several salient observations about correlation of risk factors with *Coronary Artery Disease* and *Stroke*.
 
-All of the risk factors (with the execption of binge drinking and cholesterol screening) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke. 
+All of the risk factors (with the exception of binge drinking and cholesterol screening) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke. 
 
 ###Factors correlated with coronary artery disease
 
