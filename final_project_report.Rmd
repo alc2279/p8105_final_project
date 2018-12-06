@@ -110,7 +110,7 @@ cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=
 
 ```
 
-We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database `nyc_cvrisk`. We then exported this to a csv in our repository so that we can read in the limited dataset for future use to improve efficiency.
+We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database `nyc_cvrisk`. 
 
 ```{r}
 nyc_cvrisk = 
@@ -128,7 +128,7 @@ nyc_cvrisk =
 
 ###Making the animated scatterplot for coronary artery disease
 
-We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset.
+We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset. We also repeated the same thing to create another dataset for stroke.
 
 ```{r}
 nyc_cvrisk_limited = nyc_cvrisk %>% 
@@ -159,7 +159,7 @@ We then installed the package required for animation
 devtools::install_github('thomasp85/gganimate')
 ```
 
-We then created an animated scatterplot with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis
+We then created an animated scatterplot with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis using the package `gganimate`.
 
 ```{r, warning=FALSE}
 theme_set(theme_bw())  # pre-set the bw theme.
@@ -238,7 +238,7 @@ nyc_cvrisk_wide =
   janitor::clean_names()
 ```
 
-The correlation plot for coronary heart disease and risk factors of interest is as follows:
+We then used the `corrplot` package to generate the correlation plot for coronary heart disease and risk factors of interest as follows:
 
 ```{r}
 
@@ -344,7 +344,7 @@ We also used `shinyApp` and `plotly` package to build a program to calculate ind
 
 In the process of building this project, we gained several insights about risk factors for heart disease. 
 
-* In particular, the strength of correlation of lifestyle risk factors with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in [this article](http://www.onlinejacc.org/content/accj/69/1/25.full.pdf).
+* In particular, the strength of correlation of lifestyle risk factors like physical inactivity and smoking with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Our findings also highlight the need for raising the awareness for modifiable factors like hypertension and diabetes that are also strongly correlated with heart disease. Variable slef-reporting of these conditions across NYC as visualized in our NYC Map app could also likely be due to variation in awareness and underdiagnosis. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in [this article](http://www.onlinejacc.org/content/accj/69/1/25.full.pdf).
 
 * Visualization of geographic variation of these risk factors in outcomes in New York City provide insights into target neighborhoods for implementation of cardiovascular risk reduction policies.
 
