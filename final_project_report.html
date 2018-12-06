@@ -435,16 +435,6 @@ div.tocify {
 <p>We scraped the data directly from the web as seen in the code below and called it <code>cvrisk</code>.</p>
 <pre class="r"><code>cvrisk = read_csv(&quot;https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD&quot;) %&gt;% 
     janitor::clean_names() </code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   .default = col_character(),
-##   Year = col_integer(),
-##   Data_Value = col_double(),
-##   Low_Confidence_Limit = col_double(),
-##   High_Confidence_Limit = col_double(),
-##   PopulationCount = col_integer()
-## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
 <p>We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database <code>nyc_cvrisk</code>. We then exported this to a csv in our repository so that we can read in the limited dataset for future use to improve efficiency.</p>
 <p>There were 591 missing values in the dataset, which corresponded to observations that had population counts less than 50. For this reason, we did include these datapoints in our analysis and removed them while tidying.</p>
 <pre class="r"><code>nyc_cvrisk = 
