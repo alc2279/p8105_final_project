@@ -69,8 +69,6 @@ cvrisk =
 ```
 
 
-
-
 ```{r}
 ## Annie EDA - final set of tidying data
 
@@ -364,14 +362,12 @@ install.ImageMagick()
 nyc_cvrisk_limited = nyc_cvrisk %>% 
   filter(short_question_text %in% c("Annual Checkup", "Binge Drinking", "Cholesterol Screening", "Chronic Kidney Disease", "Current Smoking", "Diabetes", "Health Insurance", "High Blood Pressure", "High Cholesterol", "Mental Health", "Obesity", "Physical Health", "Physical Inactivity", "Sleep <7 hours", "Taking BP Medication")) %>% droplevels()
 
-<<<<<<< HEAD
 nyc_cvrisk_joined = left_join(nyc_cvrisk, chd_by_id, by = "unique_id") %>% 
   rename("Population" = population_count, "Risk Factor" = short_question_text)
-=======
+
 nyc_cad = nyc_cvrisk %>% 
   filter(short_question_text == "Coronary Heart Disease") %>% 
   droplevels()
->>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
 
 nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = "unique_id")
 
@@ -488,7 +484,7 @@ levelplot(bottom_matrix, col.regions=heat.colors, colorkey=list(space="right"),
 ```
 
 It is difficult to visually see the relationships between the variables (even when there is a high correlation) because the range in each variable is fairly small
-=======
+
 ```{r}
 ## gganimate attempts
 
@@ -499,18 +495,11 @@ theme_set(theme_bw())  # pre-set the bw theme.
 ## using transition_length and state_length
 
 p <- 
-
-  ggplot(data = nyc_cvrisk_joined, aes(x = chd_value, y = data_value, frame = "Risk Factor", label = "Risk Factor")) +
-  geom_point(data = nyc_cvrisk_joined, aes( 
-                                           size = "Population", colour = "Risk Factor" ),
-=======
-  ggplot(data = nyc_cvrisk_joined, aes(x = data_value.y, y = data_value.x, frame = short_question_text.x)) +
-  geom_point(data = nyc_cvrisk_joined, aes( 
-                                           size = population_count.x, colour = short_question_text.x ),
->>>>>>> e92e96a468f6f280f7ab65e1e41db769333bd8b3
+  nyc_cvrisk_joined %>%  
+  ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
+  geom_point(aes(size = population_count, colour = risk_factor ),
              alpha = 0.5) + 
-  xlim(0, 10) +
-  
+  xlim(0, 10)+
   labs(title = "{closest_state}",
        x = 'Coronary Heart Disease Prevalence', 
        y = 'Risk Factor Prevalence') +
@@ -527,4 +516,3 @@ animate(p, fps = 1)
 
 
 
->>>>>>> 6038bdc53d5b718bdd4e1b9248d92a6d17aa9ff2
