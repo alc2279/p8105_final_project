@@ -22,7 +22,7 @@ All of the risk factors (with the execption of binge drinking) have a positive a
 
 The map of NYC allows you to explore the prevlances of risk factors across the city. We observed that most of the risk factors were observed with higher frequency in the Harlem and Bronx area. Unhealthy behaviors like binge alcohol drinking, however, were more prevalent in downtown Manhattan.
 
-For a detailed explanation of our findings and conclusions, read our Project Report [here](report_link.html)
+For a detailed explanation of our findings and conclusions, read our Project Report [here](final_project_report.html)
 
 
 <h2> Website Overview </h2>

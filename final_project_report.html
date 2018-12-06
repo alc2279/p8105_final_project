@@ -522,12 +522,12 @@ p = nyc_cvrisk_joined %&gt;%
   enter_fade() +
   exit_fade()
 
-animate(p, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</code></pre>
+animate(p, fps = 2, height = 600, width = 1000)</code></pre>
 <p><img src="final_project_report_files/figure-html/unnamed-chunk-6-1.gif" /><!-- --></p>
 </div>
 <div id="making-the-animated-scatterplot-for-stroke" class="section level3">
 <h3>Making the animated scatterplot for stroke</h3>
-<p>We created a similar animation for stroke as shown below:</p>
+<p>We created a similar animation for stroke, the code for which is shown here.</p>
 <pre class="r"><code>theme_set(theme_bw())  # pre-set the bw theme.
 pp = nyc_cvrisk_joined_stroke %&gt;%  
   ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
@@ -551,7 +551,7 @@ pp = nyc_cvrisk_joined_stroke %&gt;%
   enter_fade() +
   exit_fade()
 
-animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</code></pre>
+animate(pp, fps = 2, height = 600, width = 1000)</code></pre>
 <p><img src="final_project_report_files/figure-html/unnamed-chunk-7-1.gif" /><!-- --></p>
 </div>
 <div id="making-the-correlation-plot-for-coronary-artery-disease" class="section level3">
@@ -570,6 +570,9 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
          &quot;Annual Checkup&quot; = annual_checkup,
          &quot;Binge Drinking&quot; = binge_drinking,
          &quot;Kidney Disease&quot; = chronic_kidney_disease,
+         &quot;High Cholesterol&quot; = high_cholesterol,
+         &quot;Hypertension&quot; = high_blood_pressure,
+         &quot;Cholesterol Screening&quot; = cholesterol_screening,
          &quot;Current Smoking&quot; = current_smoking,
          &quot;Diabetes&quot; = diabetes,
          &quot;No Insurance&quot; = health_insurance,
@@ -595,6 +598,9 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
          &quot;Annual Checkup&quot; = annual_checkup,
          &quot;Binge Drinking&quot; = binge_drinking,
          &quot;Kidney Disease&quot; = chronic_kidney_disease,
+         &quot;High Cholesterol&quot; = high_cholesterol,
+         &quot;Hypertension&quot; = high_blood_pressure,
+         &quot;Cholesterol Screening&quot; = cholesterol_screening,
          &quot;Current Smoking&quot; = current_smoking,
          &quot;Diabetes&quot; = diabetes,
          &quot;No Insurance&quot; = health_insurance,
@@ -613,11 +619,13 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
 <div id="findings" class="section level1">
 <h1>Findings</h1>
 <p>We made several salient observations about correlation of risk factors with <em>Coronary Artery Disease</em> and <em>Stroke</em>.</p>
-<p>All of the risk factors (with the execption of binge drinking) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke.</p>
+<p>All of the risk factors (with the execption of binge drinking and cholesterol screening) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke.</p>
 <div id="factors-correlated-with-coronary-artery-disease" class="section level3">
 <h3>Factors correlated with coronary artery disease</h3>
 <p>We observed that the following factors were strongly positively correlated with coronary artery disease:</p>
 <ul>
+<li>High Blood Pressure - r = 0.7</li>
+<li>High Cholesterol - r = 0.9</li>
 <li>Chronic Kidney Disease - r = 0.85</li>
 <li>Diabetes - r = 0.71</li>
 <li>Poor Physical Health - r = 0.7</li>
@@ -634,6 +642,8 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
 <h3>Factors correlated with stroke</h3>
 <p>We observed that the following factors were strongly positively correlated with coronary artery disease:</p>
 <ul>
+<li>High Blood Pressure - r = 0.9</li>
+<li>High Cholesterol - r = 0.7</li>
 <li>Chronic Kidney Disease - r = 0.97</li>
 <li>Diabetes - r = 0.9</li>
 <li>Poor Physical Health - r = 0.8</li>
@@ -647,6 +657,7 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
 <p>We observed that the following factors were strongly negatively correlated with coronary artery disease:</p>
 <ul>
 <li>Binge Alcohol Drinking - r = -0.7</li>
+<li>Cholesterol Screening - r = -0.25</li>
 </ul>
 </div>
 </div>
@@ -665,7 +676,7 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
 <h1>Discussion</h1>
 <p>In the process of building this project, we gained several insights about risk factors for heart disease.</p>
 <ul>
-<li><p>In particular, the strength of correlation of lifestyle risk factors with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in <a href="http://www.onlinejacc.org/content/accj/69/1/25.full.pdf">this article</a>.</p></li>
+<li><p>In particular, the strength of correlation of lifestyle risk factors like physical inactivity and smoking with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Moreover, modifiable risk factors like high blood pressure and high cholesterol are strongly associated with heart disease and stroke and cholesterol screening is inversely associated, suggesting the need to spread awareness about these risk factors so that they can be diagnosed and treated early. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in <a href="http://www.onlinejacc.org/content/accj/69/1/25.full.pdf">this article</a>.</p></li>
 <li><p>Visualization of geographic variation of these risk factors in outcomes in New York City provide insights into target neighborhoods for implementation of cardiovascular risk reduction policies.</p></li>
 <li><p>Visualization of individual risk for heart disease using patient-level inputs, and the ability to understand how modification of one input can impact the risk can be very powerful for people working toward decreasing their risk.</p></li>
 </ul>

@@ -224,9 +224,9 @@ animate(p, fps = 2, height = 600, width = 1000)
 
 ###Making the animated scatterplot for stroke
 
-We created a similar animation for stroke as shown below:
+We created a similar animation for stroke, the code for which is shown here.
 
-```{r, warning=FALSE}
+```{r, warning = FALSE}
 theme_set(theme_bw())  # pre-set the bw theme.
 pp = nyc_cvrisk_joined_stroke %>%  
   ggplot(aes(x = data_value.y, y = data_value.x, frame = risk_factor)) +
