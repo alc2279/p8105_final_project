@@ -435,24 +435,55 @@ div.tocify {
 <p>We scraped the data directly from the web as seen in the code below and called it <code>cvrisk</code>.</p>
 <pre class="r"><code>cvrisk = read_csv(&quot;https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD&quot;) %&gt;% 
     janitor::clean_names() </code></pre>
-<p>We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database <code>nyc_cvrisk</code>.</p>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_character(),
+##   Year = col_integer(),
+##   Data_Value = col_double(),
+##   Low_Confidence_Limit = col_double(),
+##   High_Confidence_Limit = col_double(),
+##   PopulationCount = col_integer()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<p>We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database <code>nyc_cvrisk</code>. We then exported this to a csv in our repository so that we can read in the limited dataset for future use to improve efficiency.</p>
+<p>There were 591 missing values in the dataset, which corresponded to observations that had population counts less than 50. For this reason, we did include these datapoints in our analysis and removed them while tidying.</p>
 <pre class="r"><code>nyc_cvrisk = 
   cvrisk %&gt;% 
   filter(state_desc == &quot;New York&quot;, city_name == &quot;New York&quot;,
          geographic_level == &quot;Census Tract&quot;,
          !is.na(data_value),
-         year == 2016,
          measure_id %in% c(&quot;ACCESS2&quot;, &quot;BINGE&quot;, &quot;BPHIGH&quot;, &quot;BPMED&quot;, &quot;OBESITY&quot;, &quot;CHECKUP&quot;, 
                          &quot;CHOLSCREEN&quot;, &quot;CSMOKING&quot;, &quot;DIABETES&quot;, &quot;HIGHCHOL&quot;, &quot;KIDNEY&quot;, 
                          &quot;LPA&quot;, &quot;MHLTH&quot;, &quot;PHLTH&quot;, &quot;SLEEP&quot;, &quot;CHD&quot;, &quot;STROKE&quot;)) %&gt;%
   droplevels() %&gt;% 
   select(unique_id, population_count, measure_id, data_value, short_question_text)</code></pre>
+<p>The following is a distribution of the prevalences of all of the relevant variables. As you can see the risk factors with highest prevalence involve screening and medication (BPMED, CHECKUP and CHOLSCREEN). The risk factors with the lowest prevlances are diseases (CHD, KIDNEY and STROKE). There is a general trend of higher variance among risk factors with higher prevalences.</p>
+<pre class="r"><code>nyc_cvrisk %&gt;%
+  ggplot(aes(x = measure_id, y = data_value, color = measure_id)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1),
+        legend.position = &quot;none&quot;) + 
+   labs(
+      title = &quot;Risk Factor Prevalence in NYC 2015-2016&quot;,
+      x = &quot;Risk Factor&quot;,
+      y = &quot;Prevalence (%)&quot;,
+      caption = &quot;Data from the BRFSS SMART 2010&quot;
+    ) + 
+    viridis::scale_color_viridis(
+      discrete = TRUE
+    )</code></pre>
+<p><img src="final_project_report_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 </div>
 <div id="making-the-animated-scatterplot-for-coronary-artery-disease" class="section level3">
 <h3>Making the animated scatterplot for coronary artery disease</h3>
-<p>We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset. We also repeated the same thing to create another dataset for stroke.</p>
+<p>We first created another dataset that can be used for the animated scatterplot such that the outcome measure for coronary artery disease appears as a separate variable in the dataset. We created another similar dataset for stroke.</p>
 <pre class="r"><code>nyc_cvrisk_limited = nyc_cvrisk %&gt;% 
-  filter(short_question_text %in% c(&quot;Annual Checkup&quot;, &quot;Binge Drinking&quot;, &quot;Cholesterol Screening&quot;, &quot;Chronic Kidney Disease&quot;, &quot;Current Smoking&quot;, &quot;Diabetes&quot;, &quot;Health Insurance&quot;, &quot;High Blood Pressure&quot;, &quot;High Cholesterol&quot;, &quot;Mental Health&quot;, &quot;Obesity&quot;, &quot;Physical Health&quot;, &quot;Physical Inactivity&quot;, &quot;Sleep &lt;7 hours&quot;, &quot;Taking BP Medication&quot;)) %&gt;% 
+  filter(short_question_text %in% c(&quot;Annual Checkup&quot;, &quot;Binge Drinking&quot;, &quot;Cholesterol Screening&quot;,
+                                    &quot;Chronic Kidney Disease&quot;, &quot;Current Smoking&quot;, &quot;Diabetes&quot;, 
+                                    &quot;Health Insurance&quot;, &quot;High Blood Pressure&quot;, &quot;High Cholesterol&quot;,
+                                    &quot;Mental Health&quot;, &quot;Obesity&quot;, &quot;Physical Health&quot;, 
+                                    &quot;Physical Inactivity&quot;, &quot;Sleep &lt;7 hours&quot;, 
+                                    &quot;Taking BP Medication&quot;)) %&gt;% 
   droplevels() %&gt;% 
   mutate(risk_factor = short_question_text) %&gt;% 
   select(-short_question_text, -measure_id)
@@ -471,7 +502,7 @@ nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = &quot;unique_id&
 nyc_cvrisk_joined_stroke = left_join(nyc_cvrisk_limited, nyc_stroke, by = &quot;unique_id&quot;)</code></pre>
 <p>We then installed the package required for animation</p>
 <pre class="r"><code>devtools::install_github(&#39;thomasp85/gganimate&#39;)</code></pre>
-<p>We then created an animated scatterplot with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis using the package <code>gganimate</code>.</p>
+<p>We then created an animated scatterplot with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis</p>
 <pre class="r"><code>theme_set(theme_bw())  # pre-set the bw theme.
 
 
@@ -501,7 +532,7 @@ p = nyc_cvrisk_joined %&gt;%
   exit_fade()
 
 animate(p, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-5-1.gif" /><!-- --></p>
+<p><img src="final_project_report_files/figure-html/unnamed-chunk-6-1.gif" /><!-- --></p>
 </div>
 <div id="making-the-animated-scatterplot-for-stroke" class="section level3">
 <h3>Making the animated scatterplot for stroke</h3>
@@ -530,7 +561,7 @@ pp = nyc_cvrisk_joined_stroke %&gt;%
   exit_fade()
 
 animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-6-1.gif" /><!-- --></p>
+<p><img src="final_project_report_files/figure-html/unnamed-chunk-7-1.gif" /><!-- --></p>
 </div>
 <div id="making-the-correlation-plot-for-coronary-artery-disease" class="section level3">
 <h3>Making the correlation plot for coronary artery disease</h3>
@@ -540,7 +571,7 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
   select(-measure_id)%&gt;%
   spread(key = short_question_text, value = data_value) %&gt;% 
   janitor::clean_names()</code></pre>
-<p>We then used the <code>corrplot</code> package to generate the correlation plot for coronary heart disease and risk factors of interest as follows:</p>
+<p>The correlation plot for coronary heart disease and risk factors of interest is as follows:</p>
 <pre class="r"><code>nyc_cvrisk_wide %&gt;% 
   select(annual_checkup:sleep_7_hours) %&gt;% 
   select(&quot;coronary_heart_disease&quot;, everything())%&gt;%
@@ -560,7 +591,7 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
   corrplot(method = &quot;square&quot;, addCoef.col = &quot;black&quot;, tl.col=&quot;black&quot;, tl.srt=45, insig = &quot;blank&quot;, 
          # hide correlation coefficient on the principal diagonal
          diag=FALSE, number.cex = .7)</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="final_project_report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
 <div id="making-the-correlation-plot-for-stroke" class="section level3">
 <h3>Making the correlation plot for stroke</h3>
@@ -585,12 +616,13 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
   corrplot(method = &quot;square&quot;, addCoef.col = &quot;black&quot;, tl.col=&quot;black&quot;, tl.srt=45, insig = &quot;blank&quot;, 
          # hide correlation coefficient on the principal diagonal
          diag=FALSE, number.cex = .7)</code></pre>
-<p><img src="final_project_report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="final_project_report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 </div>
 <div id="findings" class="section level1">
 <h1>Findings</h1>
 <p>We made several salient observations about correlation of risk factors with <em>Coronary Artery Disease</em> and <em>Stroke</em>.</p>
+<p>All of the risk factors (with the execption of binge drinking) have a positive association with both coronary heart disease and stroke. The top three risk factors for both outcomes are chronic kidney disease, diabetes and poor physical Health. In addition, many of the risk factors are associated with each other; namely, physical inactivity is heavily correlated with many of the other variables. The risk factors tend to be similarly associated with both coronary heart disease and stroke, with stronger associations with stroke.</p>
 <div id="factors-correlated-with-coronary-artery-disease" class="section level3">
 <h3>Factors correlated with coronary artery disease</h3>
 <p>We observed that the following factors were strongly positively correlated with coronary artery disease:</p>
@@ -642,7 +674,7 @@ animate(pp, fps = 2, height = 600, width = 1000, renderer = gifski_renderer())</
 <h1>Discussion</h1>
 <p>In the process of building this project, we gained several insights about risk factors for heart disease.</p>
 <ul>
-<li><p>In particular, the strength of correlation of lifestyle risk factors like physical inactivity and smoking with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Our findings also highlight the need for raising the awareness for modifiable factors like hypertension and diabetes that are also strongly correlated with heart disease. Variable slef-reporting of these conditions across NYC as visualized in our NYC Map app could also likely be due to variation in awareness and underdiagnosis. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in <a href="http://www.onlinejacc.org/content/accj/69/1/25.full.pdf">this article</a>.</p></li>
+<li><p>In particular, the strength of correlation of lifestyle risk factors with coronary artery disease and stroke indicate the potential for making an impact by targeting these interventions. Interestingly, alcohol intake was negatively correlated with both coronary disease and stroke. This has been observed in several meta-analyses as well. This is however, likely only an association, and not evidence of causation, as discussed in <a href="http://www.onlinejacc.org/content/accj/69/1/25.full.pdf">this article</a>.</p></li>
 <li><p>Visualization of geographic variation of these risk factors in outcomes in New York City provide insights into target neighborhoods for implementation of cardiovascular risk reduction policies.</p></li>
 <li><p>Visualization of individual risk for heart disease using patient-level inputs, and the ability to understand how modification of one input can impact the risk can be very powerful for people working toward decreasing their risk.</p></li>
 </ul>
