@@ -103,7 +103,7 @@ In order to predict risk for heart disease for an individual, we utilized the [F
 
 We scraped the data directly from the web as seen in the code below and called it `cvrisk`.
 
-```{r, cache = TRUE}
+```{r, cache = TRUE, warning=FALSE, message=FALSE}
 
 cvrisk = read_csv("https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD") %>% 
     janitor::clean_names() 
