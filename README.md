@@ -11,3 +11,7 @@ We utilized the [500 Cities: Local Data for Better Health](https://catalog.data.
 The data can also be downloaded on [Google Drive](https://drive.google.com/drive/folders/1U_8orguSxdIiNpxj_6sx8rav6ubqmmrq) 
 
 For a detailed explanation of our findings and conclusions, read our Project Report [here](final_project_report.html)
+
+
+### Contributors 
+Aakriti Gupta | Annie Clark | Jiyue Qin | Margaret Gacheru
