@@ -304,6 +304,9 @@ div.tocify {
   <a href="https://jiyueqin.shinyapps.io/framingham/">Find Your Risk!</a>
 </li>
 <li>
+  <a href="final_project_report.html">Project Report</a>
+</li>
+<li>
   <a href="https://heartbeathealth.com/">
     <span class="fa fa-heartbeat fa-lg"></span>
      
@@ -430,13 +433,8 @@ div.tocify {
 <div id="loading-and-tidying-the-data" class="section level3">
 <h3>Loading and tidying the data</h3>
 <p>We scraped the data directly from the web as seen in the code below and called it <code>cvrisk</code>.</p>
-<pre class="r"><code>cvrisk_url = &quot;https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD&quot;
-
-## Read in data from github
-cvrisk = 
-  read.csv(url(cvrisk_url)) %&gt;% 
-  janitor::clean_names() %&gt;% 
-  as_tibble()</code></pre>
+<pre class="r"><code>cvrisk = read_csv(&quot;https://data.cdc.gov/api/views/6vp6-wxuq/rows.csv?accessType=DOWNLOAD&quot;) %&gt;% 
+    janitor::clean_names() </code></pre>
 <p>We then restricted our database to census tract -level data in New York City and included only the variables that were useful for further data visualization. We called this database <code>nyc_cvrisk</code>. We then exported this to a csv in our repository so that we can read in the limited dataset for future use to improve efficiency.</p>
 <pre class="r"><code>nyc_cvrisk = 
   cvrisk %&gt;% 
@@ -480,7 +478,7 @@ nyc_cvrisk_joined = left_join(nyc_cvrisk_limited, nyc_cad, by = &quot;unique_id&
 nyc_cvrisk_joined_stroke = left_join(nyc_cvrisk_limited, nyc_stroke, by = &quot;unique_id&quot;)</code></pre>
 <p>We then installed the package required for animation</p>
 <pre class="r"><code>devtools::install_github(&#39;thomasp85/gganimate&#39;)</code></pre>
-<p>We then created an animated scatterplot with Coronary Heart DIsease prevalence on the X-axis and different risk factors on the Y-axis</p>
+<p>We then created an animated scatterplot with Coronary Heart Disease prevalence on the X-axis and different risk factors on the Y-axis</p>
 <pre class="r"><code>theme_set(theme_bw())  # pre-set the bw theme.
 
 
