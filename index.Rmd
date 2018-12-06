@@ -26,10 +26,10 @@ For a detailed explanation of our findings and conclusions, read our Project Rep
 
 
 <h2> Website Overview </h2>
-
-* <b>Analysis</b>: Correlation of Risk Factors with Coronary Disease and Stroke at Census-tract level in New York City (2015-2016)
-* <b>NYC Map</b>: Prevalence of Health Indicators throughout New York City
-* <b>Find your Risk!</b>: App that allows for input of risk factor variables of an indivdual and predicts the 10-year cardiovascular risk using the Framingham risk score algorithm
+<br>
+<i><b>Analysis</b></i>: Correlation of Risk Factors with Coronary Disease and Stroke at Census-tract level in New York City (2015-2016)</br> <br>
+<i><b>NYC Map</b></i>: Prevalence of Health Indicators throughout New York City</br><br>
+<i><b>Find your Risk!</b></i>: App that allows for input of risk factor variables of an indivdual and predicts the 10-year cardiovascular risk using the Framingham risk score algorithm</br><br>
 
 For a brief overview of our website, view our screencast [here](https://www.youtube.com/watch?v=ogEZEKVYpkQ)
 
